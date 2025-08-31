@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">techHourse</string>
+    <string name="settings">设置</string>
+    <string name="feedback">反馈与帮助</string>
+    <string name="about">关于</string>
+    <string name="phoneNum">手机号</string>
+    <string name="password">登录密码</string>
+    <string name="transCount">Transsion账号</string>
+    <string name="realNameAuth">实名认证</string>
+    <string name="noneAuth">未认证</string>
+    <string name="noneset">未设置</string>
+    <string name="doneset">已设置</string>
+    <string name="nonebind">未绑定</string>
+    <string name="swicthCount">切换账号</string>
+    <string name="logout">退出登录</string>
+    <string name="passwAgain">再次输入密码</string>
+    <string name="passwInput">输入新的密码</string>
+    <string name="setpasswhint">8-20位密码,至少包括英文字母、数字、特殊符号中的2种</string>
+    <string name="finish">完成</string>
+    <string name="setPassw">设置密码</string>
+</resources>

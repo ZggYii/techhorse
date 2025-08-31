@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色主题颜色 -->
+    <color name="background_black">#FF1A1A1A</color>
+    <color name="background_white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray">#FF757575</color>
+    <color name="primary">#FF2196F3</color>
+    <color name="primary_dark">#FF1976D2</color>
+    <color name="accent">#FFFF4081</color>
+    
+    <!-- 浅色主题颜色 -->
+    <color name="light_background">#FFF5F5F5</color>
+    <color name="light_surface">#FFFFFFFF</color>
+    <color name="light_card_background">#FFFFFFFF</color>
+    <color name="light_text_primary">#FF212121</color>
+    <color name="light_text_secondary">#FF757575</color>
+    <color name="light_divider">#FFE0E0E0</color>
+    <color name="light_icon">#FF757575</color>
+    <color name="light_primary">#FF1976D2</color>
+    <color name="light_primary_variant">#FF1565C0</color>
+    <color name="light_secondary">#FF424242</color>
+    <color name="light_elevation_shadow">#1F000000</color>
+</resources>
