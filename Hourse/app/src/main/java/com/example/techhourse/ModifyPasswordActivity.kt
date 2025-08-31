@@ -6,8 +6,8 @@ import android.text.InputType
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import android.content.Intent
+import com.google.android.material.snackbar.Snackbar
 
 class ModifyPasswordActivity : AppCompatActivity() {
 
@@ -95,27 +95,27 @@ class ModifyPasswordActivity : AppCompatActivity() {
         // 验证输入
         when {
             currentPassword.isEmpty() -> {
-                Toast.makeText(this, "请输入当前密码", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "请输入当前密码", Snackbar.LENGTH_SHORT).show()
                 return
             }
             newPassword.isEmpty() -> {
-                Toast.makeText(this, "请输入新密码", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "请输入新密码", Snackbar.LENGTH_SHORT).show()
                 return
             }
             confirmNewPassword.isEmpty() -> {
-                Toast.makeText(this, "请再次输入新密码", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "请再次输入新密码", Snackbar.LENGTH_SHORT).show()
                 return
             }
             newPassword != confirmNewPassword -> {
-                Toast.makeText(this, "两次输入的新密码不一致", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "两次输入的新密码不一致", Snackbar.LENGTH_SHORT).show()
                 return
             }
             !isValidPassword(newPassword) -> {
-                Toast.makeText(this, "新密码格式不正确，请按要求设置密码", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "新密码格式不正确，请按要求设置密码", Snackbar.LENGTH_SHORT).show()
                 return
             }
             currentPassword == newPassword -> {
-                Toast.makeText(this, "新密码不能与当前密码相同", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "新密码不能与当前密码相同", Snackbar.LENGTH_SHORT).show()
                 return
             }
         }
@@ -124,7 +124,7 @@ class ModifyPasswordActivity : AppCompatActivity() {
         // 为了演示，我们假设当前密码验证通过
         
         // 密码修改成功
-        Toast.makeText(this, "密码修改成功", Toast.LENGTH_SHORT).show()
+        Snackbar.make(findViewById(android.R.id.content), "密码修改成功", Snackbar.LENGTH_SHORT).show()
         
         // 返回结果给SettingsDetailActivity
         val intent = Intent()

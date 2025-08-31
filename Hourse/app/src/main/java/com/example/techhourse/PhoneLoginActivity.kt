@@ -8,7 +8,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 
 class PhoneLoginActivity : AppCompatActivity() {
 
@@ -47,23 +47,23 @@ class PhoneLoginActivity : AppCompatActivity() {
         // 帮助按钮点击事件
         val tvHelp = findViewById<TextView>(R.id.tv_help)
         tvHelp.setOnClickListener {
-            Toast.makeText(this, "帮助", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "帮助", Snackbar.LENGTH_SHORT).show()
         }
 
         // 第三方登录点击事件
         val ivWechat = findViewById<ImageView>(R.id.iv_wechat_login)
         ivWechat.setOnClickListener {
-            Toast.makeText(this, "微信登录", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "微信登录", Snackbar.LENGTH_SHORT).show()
         }
 
         val ivQQ = findViewById<ImageView>(R.id.iv_qq_login)
         ivQQ.setOnClickListener {
-            Toast.makeText(this, "QQ登录", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "QQ登录", Snackbar.LENGTH_SHORT).show()
         }
 
         val ivApple = findViewById<ImageView>(R.id.iv_weibo_login)
         ivApple.setOnClickListener {
-            Toast.makeText(this, "微博登录", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "微博登录", Snackbar.LENGTH_SHORT).show()
         }
 
     }
@@ -73,22 +73,22 @@ class PhoneLoginActivity : AppCompatActivity() {
 
         // 验证手机号
         if (phoneNumber.isEmpty()) {
-            Toast.makeText(this, "请输入手机号", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "请输入手机号", Snackbar.LENGTH_SHORT).show()
             return
         }
 
         if (!isValidPhoneNumber(phoneNumber)) {
-            Toast.makeText(this, "请输入正确的手机号", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "请输入正确的手机号", Snackbar.LENGTH_SHORT).show()
             return
         }
 
         // 验证用户协议
         if (!cbAgreement.isChecked) {
-            Toast.makeText(this, "请先同意用户协议", Toast.LENGTH_SHORT).show()
+            Snackbar.make(findViewById(android.R.id.content), "请先同意用户协议", Snackbar.LENGTH_SHORT).show()
             return
         }
 
-        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show()
+        Snackbar.make(findViewById(android.R.id.content), "登录成功", Snackbar.LENGTH_SHORT).show()
         finish()
     }
 
