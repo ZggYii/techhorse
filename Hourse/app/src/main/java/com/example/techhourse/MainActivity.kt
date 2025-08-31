@@ -2,13 +2,20 @@ package com.example.techhourse
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     
@@ -27,6 +34,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvCompare: TextView
     private lateinit var tvMore: TextView
     
+    private lateinit var rvPhoneCards: RecyclerView
+    private lateinit var rvHistoryCards: RecyclerView
+    
+    private val historyPhoneCards = mutableListOf<PhoneCard>()
+    private lateinit var historyAdapter: HistoryCardAdapter
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,7 +47,14 @@ class MainActivity : AppCompatActivity() {
         
         initViews()
         setupTabBar()
+        setupRecyclerView()
+        setupHistoryRecyclerView()
         setDefaultTab()
+        
+        // 延迟显示权限对话框，让用户先看到主界面
+        Handler(Looper.getMainLooper()).postDelayed({
+            showPermissionDialog()
+        }, 500) // 延迟0.5秒显示
     }
     
     private fun initViews() {
@@ -55,6 +75,10 @@ class MainActivity : AppCompatActivity() {
         tvChat = findViewById(R.id.tv_chat)
         tvCompare = findViewById(R.id.tv_compare)
         tvMore = findViewById(R.id.tv_more)
+        
+        // 初始化RecyclerView
+        rvPhoneCards = findViewById(R.id.rv_phone_cards)
+        rvHistoryCards = findViewById(R.id.his_phone_cards)
     }
     
     private fun setupTabBar() {
@@ -63,6 +87,88 @@ class MainActivity : AppCompatActivity() {
         tabChat.setOnClickListener { switchTab(1) }
         tabCompare.setOnClickListener { switchTab(2) }
         tabMore.setOnClickListener { switchTab(3) }
+    }
+    
+    private fun setupRecyclerView() {
+        // 创建手机数据
+        val phoneCards = listOf(
+            PhoneCard(1, "Itel", "性价比之王", "联发科", R.mipmap.itel),
+            PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.tecno),
+            PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix)
+        )
+        
+        // 设置布局管理器（水平滚动）
+        rvPhoneCards.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        
+        // 设置适配器
+        val adapter = PhoneCardAdapter(phoneCards) { phoneCard ->
+            // 点击事件处理
+            Snackbar.make(findViewById(android.R.id.content), "点击了: ${phoneCard.name}", Snackbar.LENGTH_SHORT).show()
+            
+            // 添加到历史记录
+            addToHistory(phoneCard)
+        }
+        
+        rvPhoneCards.adapter = adapter
+    }
+    
+    private fun setupHistoryRecyclerView() {
+        // 设置布局管理器（水平滚动）
+        rvHistoryCards.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        
+        // 设置适配器
+        historyAdapter = HistoryCardAdapter(historyPhoneCards) { phoneCard ->
+            // 历史记录点击事件处理
+            Snackbar.make(findViewById(android.R.id.content), "历史记录: ${phoneCard.name}", Snackbar.LENGTH_SHORT).show()
+        }
+        
+        rvHistoryCards.adapter = historyAdapter
+        
+        // 添加一些初始历史记录数据用于测试
+        addToHistory(PhoneCard(1, "Itel", "性价比之王", "联发科", R.mipmap.itel))
+        addToHistory(PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.tecno))
+        addToHistory(PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix))
+    }
+    
+    private fun addToHistory(phoneCard: PhoneCard) {
+        // 检查是否已经存在相同ID的记录
+        val existingIndex = historyPhoneCards.indexOfFirst { it.id == phoneCard.id }
+        
+        if (existingIndex != -1) {
+            // 如果已存在，移除旧记录
+            historyPhoneCards.removeAt(existingIndex)
+        }
+        
+        // 添加到历史记录开头
+        historyPhoneCards.add(0, phoneCard)
+        
+        // 限制历史记录数量为5个
+        if (historyPhoneCards.size > 5) {
+            historyPhoneCards.removeAt(historyPhoneCards.size - 1)
+        }
+        
+        // 通知适配器数据已更新
+        historyAdapter.notifyDataSetChanged()
+    }
+    
+    private fun showPermissionDialog() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val dialogView = layoutInflater.inflate(R.layout.permission_dialog_layout, null)
+        
+        // 设置允许按钮点击事件
+        dialogView.findViewById<Button>(R.id.btn_allow).setOnClickListener {
+            Snackbar.make(findViewById(android.R.id.content), "权限已允许", Snackbar.LENGTH_SHORT).show()
+            bottomSheetDialog.dismiss()
+        }
+        
+        // 设置不允许按钮点击事件
+        dialogView.findViewById<Button>(R.id.btn_not_allow).setOnClickListener {
+            Snackbar.make(findViewById(android.R.id.content), "权限已拒绝", Snackbar.LENGTH_SHORT).show()
+            bottomSheetDialog.dismiss()
+        }
+        
+        bottomSheetDialog.setContentView(dialogView)
+        bottomSheetDialog.show()
     }
     
     private fun setDefaultTab() {

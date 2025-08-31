@@ -131,7 +131,7 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun getRandomServiceAgreement(): String {
         val agreements = arrayOf(
             "欢迎使用我们的服务！本协议规定了您使用我们服务时的权利和义务。我们致力于为用户提供优质的服务体验，同时保护用户的合法权益。",
-            "服务协议条款：1. 用户应遵守相关法律法规；2. 不得从事违法违规活动；3. 保护个人隐私信息；4. 合理使用服务资源。",
+            "服务协议条款：\n1. 用户应遵守相关法律法规；\n2. 不得从事违法违规活动；\n3. 保护个人隐私信息；\n4. 合理使用服务资源。\n",
             "用户在使用本服务时，应当遵守中华人民共和国相关法律法规，不得利用本服务从事违法违规活动，包括但不限于发布违法信息、侵犯他人权益等。"
         )
         return agreements.random()

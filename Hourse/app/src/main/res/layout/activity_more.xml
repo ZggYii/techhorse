@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="16dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@mipmap/wallpaper"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

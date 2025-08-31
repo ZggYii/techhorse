@@ -12,6 +12,10 @@
 
 <img src="C:\Users\ZggYii\AppData\Roaming\Typora\typora-user-images\image-20250831173601529.png" alt="image-20250831173601529" style="zoom:50%;" />
 
+
+
+聊天起始界面
+
 实现包含：
 
  	1. menu 菜单：左边点击查看滑动菜单

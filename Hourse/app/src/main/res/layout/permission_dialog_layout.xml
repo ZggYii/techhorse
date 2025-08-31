@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/permission_dialog_background"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- 权限请求问题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Would you allow us to access your mobile phone information"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- 按钮容器 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 允许按钮 -->
+        <Button
+            android:id="@+id/btn_allow"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Allow"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:background="@drawable/permission_button_background"
+            android:layout_marginBottom="12dp" />
+
+        <!-- 不允许按钮 -->
+        <Button
+            android:id="@+id/btn_not_allow"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Not Allow"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:background="@drawable/permission_button_background" />
+
+    </LinearLayout>
+
+</LinearLayout>

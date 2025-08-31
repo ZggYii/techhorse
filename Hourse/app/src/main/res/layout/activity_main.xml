@@ -5,29 +5,109 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/light_background"
     tools:context=".MainActivity">
 
     <!-- 主内容区域 -->
     <FrameLayout
         android:id="@+id/fragment_container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/tab_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        app:layout_constraintBottom_toTopOf="@+id/search"
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- 默认显示Home内容 -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="首页内容"
-            android:textSize="24sp"
+            android:layout_gravity="start"
+            android:text="主页"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="44sp"
             android:textColor="@color/black" />
 
     </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/menu_item_background"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_container">
+
+
+        <EditText
+            android:id="@+id/search_text"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="20dp"
+            android:layout_weight="6"
+            android:hint="搜索感兴趣的手机"
+            android:background="@null"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="10dp"
+            android:src="@mipmap/icon_search"/>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/well_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="精品手机系列"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="20dp"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/search"/>
+
+    <!-- 手机卡片RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_phone_cards"
+        android:layout_width="match_parent"
+        android:layout_height="270dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintTop_toBottomOf="@id/well_category" />
+
+
+    <TextView
+        android:id="@+id/history"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="历史记录"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="20dp"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/rv_phone_cards"/>
+
+
+    <!-- 历史记录RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/his_phone_cards"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintTop_toBottomOf="@id/history" />
+
 
     <!-- 底部TabBar -->
     <LinearLayout
@@ -39,9 +119,11 @@
         android:orientation="horizontal"
         android:paddingTop="2dp"
         android:paddingBottom="10dp"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/his_phone_cards">
 
         <!-- Home Tab -->
         <LinearLayout
