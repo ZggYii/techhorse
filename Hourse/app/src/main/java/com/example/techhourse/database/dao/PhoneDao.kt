@@ -21,6 +21,9 @@ interface PhoneDao {
     @Query("SELECT * FROM phone_library WHERE phoneModel LIKE '%' || :keyword || '%' OR marketName LIKE '%' || :keyword || '%'")
     suspend fun searchPhones(keyword: String): List<PhoneEntity>
     
+    @Query("SELECT * FROM phone_library WHERE LOWER(phoneModel) LIKE '%' || :keyword || '%'")
+    suspend fun searchPhonesByModel(keyword: String): List<PhoneEntity>
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPhone(phone: PhoneEntity): Long
     

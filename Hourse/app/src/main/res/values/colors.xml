@@ -11,6 +11,7 @@
     <color name="accent">#FFFF4081</color>
     
     <!-- 浅色主题颜色 -->
+    <color name="background_light">#FFF5F5F5</color>
     <color name="light_background">#FFF5F5F5</color>
     <color name="light_surface">#FFFFFFFF</color>
     <color name="light_card_background">#FFFFFFFF</color>

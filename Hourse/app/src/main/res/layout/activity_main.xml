@@ -53,6 +53,7 @@
             android:background="@null"/>
 
         <ImageView
+            android:id="@+id/searchForCondi"
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:layout_weight="1"

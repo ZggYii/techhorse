@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -45,6 +46,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rvPhoneCards: RecyclerView
     private lateinit var rvHistoryCards: RecyclerView
     
+    // 搜索相关视图
+    private lateinit var searchText: EditText
+    private lateinit var searchButton: ImageView
+    
     private val historyPhoneCards = mutableListOf<PhoneCard>()
     private lateinit var historyAdapter: HistoryCardAdapter
     
@@ -57,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         setupTabBar()
         setupRecyclerView()
         setupHistoryRecyclerView()
+        setupSearchFunction()
         setDefaultTab()
         
         // 启动时检查数据库状态并初始化
@@ -127,6 +133,10 @@ class MainActivity : AppCompatActivity() {
         // 初始化RecyclerView
         rvPhoneCards = findViewById(R.id.rv_phone_cards)
         rvHistoryCards = findViewById(R.id.his_phone_cards)
+        
+        // 初始化搜索相关视图
+        searchText = findViewById(R.id.search_text)
+        searchButton = findViewById(R.id.searchForCondi)
     }
     
     private fun setupTabBar() {
@@ -176,6 +186,40 @@ class MainActivity : AppCompatActivity() {
         addToHistory(PhoneCard(1, "Itel", "性价比之王", "联发科", R.mipmap.itel))
         addToHistory(PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.tecno))
         addToHistory(PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix))
+    }
+    
+    private fun setupSearchFunction() {
+        searchButton.setOnClickListener {
+            val searchQuery = searchText.text.toString().trim()
+            
+            if (searchQuery.isEmpty()) {
+                // 如果搜索框为空，显示所有手机信息
+                startPhoneLibraryActivity(null)
+                return@setOnClickListener
+            }
+            
+            // 判断输入类型
+            if (isEnglishInput(searchQuery)) {
+                // 英文输入：转为小写并进行模糊匹配
+                startPhoneLibraryActivity(searchQuery.lowercase())
+            } else {
+                // 中文、符号、数字输入：显示所有手机信息
+                startPhoneLibraryActivity(null)
+            }
+        }
+    }
+    
+    private fun isEnglishInput(input: String): Boolean {
+        // 检查输入是否只包含英文字母（包括大小写）
+        return input.matches(Regex("^[a-zA-Z\\s]+$"))
+    }
+    
+    private fun startPhoneLibraryActivity(searchQuery: String?) {
+        val intent = Intent(this, PhoneLibraryActivity::class.java)
+        searchQuery?.let {
+            intent.putExtra("search_query", it)
+        }
+        startActivity(intent)
     }
     
     private fun addToHistory(phoneCard: PhoneCard) {

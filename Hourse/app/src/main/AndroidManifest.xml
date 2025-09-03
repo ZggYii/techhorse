@@ -92,6 +92,10 @@
         <activity
             android:name=".AboutActivity"
             android:exported="false" />
+            
+        <activity
+            android:name=".PhoneLibraryActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
