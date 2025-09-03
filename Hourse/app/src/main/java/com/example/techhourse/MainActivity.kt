@@ -16,6 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import com.example.techhourse.database.AppDatabase
+import com.example.techhourse.database.DatabaseInitializer
+import com.example.techhourse.PhoneUsageInfoManager
+import com.example.techhourse.utils.UserBehaviorProcessor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     
@@ -51,10 +59,50 @@ class MainActivity : AppCompatActivity() {
         setupHistoryRecyclerView()
         setDefaultTab()
         
-        // 延迟显示权限对话框，让用户先看到主界面
-        Handler(Looper.getMainLooper()).postDelayed({
-            showPermissionDialog()
-        }, 500) // 延迟0.5秒显示
+        // 启动时检查数据库状态并初始化
+        initializeDatabaseOnStartup()
+    }
+    
+    private fun initializeDatabaseOnStartup() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 获取数据库实例
+                val database = AppDatabase.getDatabase(this@MainActivity)
+                
+                // 1. 检查并初始化手机库数据
+                DatabaseInitializer.initializePhoneData(this@MainActivity, database.phoneDao())
+                
+                // 2. 检查用户行为表是否有数据
+                val userBehaviorCount = database.userBehaviorDao().getUserBehaviorCount()
+                
+                // 切换到主线程更新UI
+                withContext(Dispatchers.Main) {
+                    if (userBehaviorCount == 0) {
+                        // 用户行为表没有数据，延迟显示权限对话框
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            showPermissionDialog()
+                        }, 500) // 延迟0.5秒显示
+                    } else {
+                        // 用户行为表已有数据，不显示权限对话框
+                        // 可以在这里添加一些提示信息
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "欢迎回来！数据已加载完成",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // 如果初始化出错，仍然显示权限对话框
+                withContext(Dispatchers.Main) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        showPermissionDialog()
+                    }, 500)
+                }
+            }
+        }
     }
     
     private fun initViews() {
@@ -159,6 +207,47 @@ class MainActivity : AppCompatActivity() {
         dialogView.findViewById<Button>(R.id.btn_allow).setOnClickListener {
             Snackbar.make(findViewById(android.R.id.content), "权限已允许", Snackbar.LENGTH_SHORT).show()
             bottomSheetDialog.dismiss()
+            
+            // 调用PhoneUsageInfoManager获取使用信息
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    // 获取数据库实例
+                    val database = AppDatabase.getDatabase(this@MainActivity)
+                    
+                    // 初始化手机数据库（如果还没有初始化）
+                    DatabaseInitializer.initializePhoneData(this@MainActivity, database.phoneDao())
+                    
+                    // 获取手机使用信息
+                    val phoneUsageInfoManager = PhoneUsageInfoManager(this@MainActivity)
+                    val usageInfoMap = phoneUsageInfoManager.getAllUsageInfo()
+                    
+                    // 处理并保存用户行为数据
+                    UserBehaviorProcessor.processAndSaveUserBehavior(
+                        usageInfoMap,
+                        database.userBehaviorDao()
+                    )
+                    
+                    // 切换到主线程更新UI
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "使用信息已收集并保存",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                    
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    // 切换到主线程显示错误信息
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "收集使用信息时出错: ${e.message}",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
         }
         
         // 设置不允许按钮点击事件
