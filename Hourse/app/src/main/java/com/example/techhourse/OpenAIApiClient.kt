@@ -1,0 +1,117 @@
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.POST
+import java.util.concurrent.TimeUnit
+
+// 将 API_KEY 作为构造函数参数传入
+class OpenAIApiClient {
+
+    companion object {
+        private const val API_KEY = "sk-a1ea1c4273524e38a2af8718abe3f595"
+        
+        fun isApiKeyConfigured(): Boolean {
+            return API_KEY.isNotEmpty() && API_KEY.startsWith("sk-")
+        }
+    }
+
+    private val apiService: OpenAIApiService
+
+    init {
+        // 配置OkHttp客户端，设置超时时间
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .build()
+            
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        apiService = retrofit.create(OpenAIApiService::class.java)
+    }
+
+    suspend fun chatCompletion(message: String): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("OpenAIApiClient", "Starting API request with message: $message")
+                
+                val requestBody = OpenAIChatRequest(
+                    model = "qwen-plus",
+                    messages = listOf(
+                        ChatMessage(
+                            role = "user",
+                            content = message
+                        )
+                    )
+                )
+
+                Log.d("OpenAIApiClient", "Making API call to Qwen Plus...")
+                // 使用 Retrofit 的异步执行方法
+                val response = apiService.chatCompletion("Bearer $API_KEY", requestBody)
+                Log.d("OpenAIApiClient", "API response received: ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val openAIResponse = response.body()
+                    val text = openAIResponse?.choices?.firstOrNull()?.message?.content
+                    Log.d("OpenAIApiClient", "Successful response: $text")
+                    text?.trim() ?: "抱歉，AI暂时无法回复。"
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("OpenAIApiClient", "API Error: ${response.code()} - $errorBody")
+                    when (response.code()) {
+                        401 -> "API密钥无效，请检查配置"
+                        403 -> "API访问被拒绝，请检查权限"
+                        429 -> "请求过于频繁，请稍后再试"
+                        else -> "请求失败：HTTP ${response.code()}"
+                    }
+                }
+            } catch (e: java.net.SocketTimeoutException) {
+                Log.e("OpenAIApiClient", "Socket timeout in chatCompletion", e)
+                "网络连接超时，请检查网络设置"
+            } catch (e: java.net.UnknownHostException) {
+                Log.e("OpenAIApiClient", "Unknown host in chatCompletion", e)
+                "无法连接到服务器，请检查网络连接"
+            } catch (e: Exception) {
+                Log.e("OpenAIApiClient", "Exception in chatCompletion", e)
+                "发生错误：${e.message}"
+            }
+        }
+    }
+}
+
+interface OpenAIApiService {
+    @POST("chat/completions")
+    suspend fun chatCompletion(
+        @Header("Authorization") authorization: String,
+        @Body request: OpenAIChatRequest
+    ): Response<OpenAIChatResponse>
+}
+
+// 请求和响应数据类
+data class OpenAIChatRequest(
+    val model: String,
+    val messages: List<ChatMessage>
+)
+
+data class ChatMessage(
+    val role: String,
+    val content: String
+)
+
+data class OpenAIChatResponse(
+    val choices: List<Choice>
+)
+
+data class Choice(
+    val message: ChatMessage
+)

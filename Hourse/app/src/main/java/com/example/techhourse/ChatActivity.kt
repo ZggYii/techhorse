@@ -3,17 +3,26 @@ package com.example.techhourse
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
+import OpenAIApiClient
 
 class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     
@@ -23,6 +32,14 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var btnNewChat: ImageView
     private lateinit var etQuery: EditText
     private lateinit var btnSend: ImageView
+    
+    // 聊天相关组件
+    private lateinit var welcomeLayout: LinearLayout
+    private lateinit var rvChatMessages: RecyclerView
+    private lateinit var chatAdapter: ChatAdapter
+    private lateinit var openAIClient: OpenAIApiClient
+    private val messages = mutableListOf<Message>()
+    private var isChatStarted = false
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,9 +62,106 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         etQuery = findViewById(R.id.et_query)
         btnSend = findViewById(R.id.btn_send)
         
+        // 初始化聊天相关组件
+        welcomeLayout = findViewById(R.id.welcome_layout)
+        rvChatMessages = findViewById(R.id.rv_chat_messages)
+        
+        // 初始化聊天组件
+        initChatComponents()
+        
         // 设置NavigationView监听器
         navigationView.setNavigationItemSelectedListener(this)
     }
+    
+    private fun initChatComponents() {
+        // 初始化OpenAI客户端
+        openAIClient = OpenAIApiClient()
+        
+        // 初始化聊天适配器
+        chatAdapter = ChatAdapter(messages)
+        rvChatMessages.layoutManager = LinearLayoutManager(this)
+        rvChatMessages.adapter = chatAdapter
+        
+        // 初始状态显示欢迎界面
+        showWelcomeScreen()
+    }
+    
+    private fun showWelcomeScreen() {
+        welcomeLayout.visibility = View.VISIBLE
+        rvChatMessages.visibility = View.GONE
+        isChatStarted = false
+    }
+    
+    private fun showChatScreen() {
+        welcomeLayout.visibility = View.GONE
+        rvChatMessages.visibility = View.VISIBLE
+        isChatStarted = true
+    }
+    
+    private fun startNewChat() {
+         messages.clear()
+         chatAdapter.notifyDataSetChanged()
+         showWelcomeScreen()
+         etQuery.text.clear()
+         Snackbar.make(findViewById(android.R.id.content), "已开始新对话", Snackbar.LENGTH_SHORT).show()
+     }
+     
+     private fun sendMessage(messageText: String) {
+         // 如果是第一次发送消息，切换到聊天界面
+         if (!isChatStarted) {
+             showChatScreen()
+         }
+         
+         // 添加用户消息
+         val userMessage = Message(messageText, SenderType.USER)
+         messages.add(userMessage)
+         chatAdapter.notifyItemInserted(messages.size - 1)
+         
+         // 滚动到最新消息
+         rvChatMessages.scrollToPosition(messages.size - 1)
+         
+         // 清空输入框
+         etQuery.text.clear()
+         
+         // 添加加载状态的AI消息
+        val loadingMessage = Message("waiting...", SenderType.AI, status = MessageStatus.LOADING)
+        messages.add(loadingMessage)
+        chatAdapter.notifyItemInserted(messages.size - 1)
+        rvChatMessages.scrollToPosition(messages.size - 1)
+        
+        val loadingMessageIndex = messages.size - 1
+        
+        // 异步调用API，带超时处理
+        lifecycleScope.launch {
+            try {
+                // 设置10秒超时
+                val aiResponse = withTimeout(20000L) {
+                    openAIClient.chatCompletion(messageText)
+                }
+
+                Log.d("ChatActivity", "AI Response: $aiResponse")
+
+                // 更新加载消息为AI回复
+                chatAdapter.updateLastMessage(aiResponse, MessageStatus.NORMAL)
+                rvChatMessages.scrollToPosition(messages.size - 1)
+                
+            } catch (e: TimeoutCancellationException) {
+                // 超时处理
+                chatAdapter.updateLastMessage("响应超时", MessageStatus.TIMEOUT)
+                rvChatMessages.scrollToPosition(messages.size - 1)
+                
+            } catch (e: Exception) {
+                // 其他错误处理
+                val errorMsg = when {
+                    e.message?.contains("API key") == true -> "请先配置Gemini API密钥"
+                    e.message?.contains("network") == true -> "网络连接错误，请检查网络设置"
+                    else -> "抱歉，发生了错误：${e.message}"
+                }
+                chatAdapter.updateLastMessage(errorMsg, MessageStatus.NORMAL)
+                rvChatMessages.scrollToPosition(messages.size - 1)
+            }
+        }
+     }
     
     private fun setupListeners() {
         // 菜单按钮点击事件
@@ -57,38 +171,29 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         
         // 新建对话按钮点击事件
         btnNewChat.setOnClickListener {
-            // 清空输入框并重新开始对话
-            etQuery.text.clear()
-            Snackbar.make(findViewById(android.R.id.content), "已经在新对话中", Snackbar.LENGTH_SHORT).show()
+            // 新建对话逻辑
+            startNewChat()
         }
         
         // 发送按钮点击事件
         btnSend.setOnClickListener {
-            sendMessage()
+            val query = etQuery.text.toString().trim()
+            if (query.isNotEmpty()) {
+                sendMessage(query)
+            }
         }
         
         // 输入框回车键发送
         etQuery.setOnEditorActionListener { _, _, _ ->
-            sendMessage()
+            val query = etQuery.text.toString().trim()
+            if (query.isNotEmpty()) {
+                sendMessage(query)
+            }
             true
         }
     }
     
-    private fun sendMessage() {
-        val message = etQuery.text.toString().trim()
-        
-        if (TextUtils.isEmpty(message)) {
-            Snackbar.make(findViewById(android.R.id.content), "请输入消息", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-        
-        // 这里可以添加发送消息的逻辑
-        // 例如：调用API、保存到数据库等
-        Snackbar.make(findViewById(android.R.id.content), "发送消息: $message", Snackbar.LENGTH_SHORT).show()
-        
-        // 清空输入框
-        etQuery.text.clear()
-    }
+
     
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // 处理侧边菜单项点击

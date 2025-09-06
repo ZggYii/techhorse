@@ -60,67 +60,86 @@
         </androidx.appcompat.widget.Toolbar>
 
         <!-- 中间聊天区域 -->
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="32dp">
+            android:layout_weight="1">
 
-            <!-- 欢迎文本 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Hello, I'm SuggGPT"
-                android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                android:text="Enter your prompt to ask me"
-                android:textColor="@color/gray"
-                android:textSize="16sp" />
-
-            <!-- 聊天输入框 -->
+            <!-- 欢迎界面 -->
             <LinearLayout
+                android:id="@+id/welcome_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/chat_input_background"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp">
 
-                <EditText
-                    android:id="@+id/et_query"
-                    android:layout_width="0dp"
+                <!-- 欢迎文本 -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:hint="query"
-                    android:inputType="textMultiLine"
-                    android:maxLines="4"
-                    android:minLines="1"
-                    android:padding="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Hello, I'm SuggGPT"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/gray"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    android:text="Enter your prompt to ask me"
+                    android:textColor="@color/gray"
                     android:textSize="16sp" />
 
-                <ImageView
-                    android:id="@+id/btn_send"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@mipmap/icon_arrow_sent"
-                    android:background="@drawable/btn_send_background"
-                    android:padding="8dp"
-                    android:contentDescription="发送" />
-
             </LinearLayout>
+
+             <!-- 聊天消息列表 -->
+             <androidx.recyclerview.widget.RecyclerView
+                 android:id="@+id/rv_chat_messages"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:padding="8dp"
+                 android:clipToPadding="false"
+                 android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- 聊天输入框 -->
+        <LinearLayout
+            android:id="@+id/query_block"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chat_input_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:layout_margin="16dp">
+
+            <EditText
+                android:id="@+id/et_query"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="query"
+                android:inputType="textMultiLine"
+                android:maxLines="4"
+                android:minLines="1"
+                android:padding="8dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/btn_send"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:src="@mipmap/icon_arrow_sent"
+                android:background="@drawable/btn_send_background"
+                android:padding="8dp"
+                android:contentDescription="发送" />
 
         </LinearLayout>
 
