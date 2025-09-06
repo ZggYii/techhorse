@@ -1,5 +1,6 @@
 package com.example.techhourse
 
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,8 +18,23 @@ data class Message(
      * @return 格式化后的时间
      */
     fun getFormattedTime(): String {
-        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-        return sdf.format(Date(timestamp))
+        try {
+            val sdf = SimpleDateFormat("HH:mm", Locale.CHINA)
+            sdf.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+            val formattedTime = sdf.format(Date(timestamp))
+            
+            // 添加调试日志
+            val currentTime = System.currentTimeMillis()
+            val currentFormatted = SimpleDateFormat("HH:mm", Locale.CHINA).apply { 
+                timeZone = TimeZone.getTimeZone("Asia/Shanghai") 
+            }.format(Date(currentTime))
+            Log.d("Message", "Timestamp: $timestamp, Formatted: $formattedTime, Current: $currentTime, CurrentFormatted: $currentFormatted")
+            
+            return formattedTime
+        } catch (e: Exception) {
+            Log.e("Message", "Error formatting time", e)
+            return "--:--"
+        }
     }
 
     /**

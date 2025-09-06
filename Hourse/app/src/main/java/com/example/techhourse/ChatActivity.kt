@@ -18,6 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
+import com.example.techhourse.database.AppDatabase
+import com.example.techhourse.utils.SystemPromptGenerator
+import com.example.techhourse.utils.TestDataGenerator
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -134,9 +137,20 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 异步调用API，带超时处理
         lifecycleScope.launch {
             try {
-                // 设置10秒超时
+                // 动态生成个性化系统提示词
+                val database = AppDatabase.getDatabase(this@ChatActivity)
+                
+                // 确保有测试数据（仅在开发阶段使用）
+                TestDataGenerator.insertSampleUserBehavior(this@ChatActivity, database.userBehaviorDao(), database.phoneDao())
+                
+                val systemPrompt = SystemPromptGenerator.generateSystemPrompt(database.userBehaviorDao(), database.phoneDao())
+                
+                // 输出生成的系统提示词到日志（用于调试）
+                Log.d("ChatActivity", "生成的系统提示词: $systemPrompt")
+                
+                // 设置20秒超时
                 val aiResponse = withTimeout(20000L) {
-                    openAIClient.chatCompletion(messageText)
+                    openAIClient.chatCompletion(messageText, systemPrompt)
                 }
 
                 Log.d("ChatActivity", "AI Response: $aiResponse")

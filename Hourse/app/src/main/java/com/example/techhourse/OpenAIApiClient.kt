@@ -40,19 +40,34 @@ class OpenAIApiClient {
         apiService = retrofit.create(OpenAIApiService::class.java)
     }
 
-    suspend fun chatCompletion(message: String): String {
+    suspend fun chatCompletion(message: String, systemPrompt: String? = null): String {
         return withContext(Dispatchers.IO) {
             try {
                 Log.d("OpenAIApiClient", "Starting API request with message: $message")
                 
-                val requestBody = OpenAIChatRequest(
-                    model = "qwen-plus",
-                    messages = listOf(
+                val messages = mutableListOf<ChatMessage>()
+                
+                // 添加系统提示词（如果提供）
+                systemPrompt?.let {
+                    messages.add(
                         ChatMessage(
-                            role = "user",
-                            content = message
+                            role = "system",
+                            content = it
                         )
                     )
+                }
+                
+                // 添加用户消息
+                messages.add(
+                    ChatMessage(
+                        role = "user",
+                        content = message
+                    )
+                )
+                
+                val requestBody = OpenAIChatRequest(
+                    model = "qwen-plus",
+                    messages = messages
                 )
 
                 Log.d("OpenAIApiClient", "Making API call to Qwen Plus...")
