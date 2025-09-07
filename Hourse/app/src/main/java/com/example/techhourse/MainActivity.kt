@@ -25,6 +25,7 @@ import com.example.techhourse.database.AppDatabase
 import com.example.techhourse.database.DatabaseInitializer
 import com.example.techhourse.PhoneUsageInfoManager
 import com.example.techhourse.utils.UserBehaviorProcessor
+import com.example.techhourse.utils.SnackbarUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,11 +111,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         // 用户行为表已有数据，不显示权限对话框
                         // 可以在这里添加一些提示信息
-                        Snackbar.make(
-                            findViewById(android.R.id.content),
-                            "欢迎回来！数据已加载完成",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        SnackbarUtils.showSnackbar(this@MainActivity, "欢迎回来！数据已加载完成")
                     }
                 }
 
@@ -220,20 +217,12 @@ class MainActivity : AppCompatActivity() {
                             startActivity(intent)
                         } else {
                             // 如果数据库中没有找到对应的手机信息，显示提示
-                            Snackbar.make(
-                                findViewById(android.R.id.content),
-                                "未找到该手机的详细信息",
-                                Snackbar.LENGTH_SHORT
-                            ).show()
+                            SnackbarUtils.showSnackbar(this@MainActivity, "未找到该手机的详细信息")
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Snackbar.make(
-                            findViewById(android.R.id.content),
-                            "加载手机信息失败",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        SnackbarUtils.showSnackbar(this@MainActivity, "加载手机信息失败")
                     }
                 }
             }
@@ -308,7 +297,7 @@ class MainActivity : AppCompatActivity() {
         
         // 设置允许按钮点击事件
         dialogView.findViewById<Button>(R.id.btn_allow).setOnClickListener {
-            Snackbar.make(findViewById(android.R.id.content), "权限已允许", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showSnackbar(this, "权限已允许")
             bottomSheetDialog.dismiss()
             
             // 调用PhoneUsageInfoManager获取使用信息
@@ -332,22 +321,14 @@ class MainActivity : AppCompatActivity() {
                     
                     // 切换到主线程更新UI
                     withContext(Dispatchers.Main) {
-                        Snackbar.make(
-                            findViewById(android.R.id.content),
-                            "使用信息已收集并保存",
-                            Snackbar.LENGTH_LONG
-                        ).show()
+                        SnackbarUtils.showLongSnackbar(this@MainActivity, "使用信息已收集并保存")
                     }
                     
                 } catch (e: Exception) {
                     e.printStackTrace()
                     // 切换到主线程显示错误信息
                     withContext(Dispatchers.Main) {
-                        Snackbar.make(
-                            findViewById(android.R.id.content),
-                            "收集使用信息时出错: ${e.message}",
-                            Snackbar.LENGTH_LONG
-                        ).show()
+                        SnackbarUtils.showLongSnackbar(this@MainActivity, "收集使用信息时出错: ${e.message}")
                     }
                 }
             }
@@ -355,7 +336,7 @@ class MainActivity : AppCompatActivity() {
         
         // 设置不允许按钮点击事件
         dialogView.findViewById<Button>(R.id.btn_not_allow).setOnClickListener {
-            Snackbar.make(findViewById(android.R.id.content), "权限已拒绝", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showSnackbar(this, "权限已拒绝")
             bottomSheetDialog.dismiss()
         }
         

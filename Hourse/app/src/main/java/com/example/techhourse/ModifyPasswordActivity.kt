@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
+import com.example.techhourse.utils.SnackbarUtils
 
 class ModifyPasswordActivity : AppCompatActivity() {
 
@@ -95,27 +96,27 @@ class ModifyPasswordActivity : AppCompatActivity() {
         // 验证输入
         when {
             currentPassword.isEmpty() -> {
-                Snackbar.make(findViewById(android.R.id.content), "请输入当前密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "请输入当前密码")
                 return
             }
             newPassword.isEmpty() -> {
-                Snackbar.make(findViewById(android.R.id.content), "请输入新密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "请输入新密码")
                 return
             }
             confirmNewPassword.isEmpty() -> {
-                Snackbar.make(findViewById(android.R.id.content), "请再次输入新密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "请再次输入新密码")
                 return
             }
             newPassword != confirmNewPassword -> {
-                Snackbar.make(findViewById(android.R.id.content), "两次输入的新密码不一致", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "两次输入的新密码不一致")
                 return
             }
             !isValidPassword(newPassword) -> {
-                Snackbar.make(findViewById(android.R.id.content), "新密码格式不正确，请按要求设置密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "新密码格式不正确，请按要求设置密码")
                 return
             }
             currentPassword == newPassword -> {
-                Snackbar.make(findViewById(android.R.id.content), "新密码不能与当前密码相同", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "新密码不能与当前密码相同")
                 return
             }
         }
@@ -124,7 +125,7 @@ class ModifyPasswordActivity : AppCompatActivity() {
         // 为了演示，我们假设当前密码验证通过
         
         // 密码修改成功
-        Snackbar.make(findViewById(android.R.id.content), "密码修改成功", Snackbar.LENGTH_SHORT).show()
+        SnackbarUtils.showNormalSnackbar(this, "密码修改成功")
         
         // 返回结果给SettingsDetailActivity
         val intent = Intent()

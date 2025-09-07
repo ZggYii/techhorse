@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.content.Intent
 import com.google.android.material.snackbar.Snackbar
+import com.example.techhourse.utils.SnackbarUtils
 
 class SetPasswordActivity : AppCompatActivity() {
 
@@ -86,25 +87,25 @@ class SetPasswordActivity : AppCompatActivity() {
         // 验证密码
         when {
             newPassword.isEmpty() -> {
-                Snackbar.make(findViewById(android.R.id.content), "请输入新密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "请输入新密码")
                 return
             }
             confirmPassword.isEmpty() -> {
-                Snackbar.make(findViewById(android.R.id.content), "请再次输入密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "请再次输入密码")
                 return
             }
             newPassword != confirmPassword -> {
-                Snackbar.make(findViewById(android.R.id.content), "两次输入的密码不一致", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "两次输入的密码不一致")
                 return
             }
             !isValidPassword(newPassword) -> {
-                Snackbar.make(findViewById(android.R.id.content), "密码格式不正确，请按要求设置密码", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "密码格式不正确，请按要求设置密码")
                 return
             }
         }
 
         // 密码验证通过，执行设置密码操作
-        Snackbar.make(findViewById(android.R.id.content), "密码设置成功", Snackbar.LENGTH_SHORT).show()
+        SnackbarUtils.showNormalSnackbar(this, "密码设置成功")
         
         // 返回结果给SettingsDetailActivity
         val intent = Intent()

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="?attr/selectableItemBackground"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <!-- 手机信息 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- 手机名称 -->
+        <TextView
+            android:id="@+id/tv_phone_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="iPhone 15 Pro"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="4dp" />
+
+        <!-- 价格和内存信息 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_phone_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥8999"
+                android:textSize="14sp"
+                android:textColor="#FF5722"
+                android:textStyle="bold"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tv_phone_memory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="128GB"
+                android:textSize="14sp"
+                android:textColor="#666666" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 选择指示器 -->
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_arrow_right"
+        android:layout_marginStart="8dp"
+        android:alpha="0.6" />
+
+</LinearLayout>

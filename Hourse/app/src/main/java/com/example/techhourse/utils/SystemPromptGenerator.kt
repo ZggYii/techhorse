@@ -278,6 +278,7 @@ class SystemPromptGenerator {
                 promptBuilder.append("\n\n请基于以上完整的手机库信息为用户提供精准的推荐建议。\n")
             }
         }
+
         
         /**
          * 获取包含手机库信息的默认系统提示词
@@ -298,6 +299,40 @@ class SystemPromptGenerator {
             promptBuilder.append("\n5. 每次都需要推荐至少三款最适合用户需求的手机")
 
             return promptBuilder.toString()
+        }
+        
+        /**
+         * 添加手机库信息到提示词中
+         * 将每一行数据都作为一个手机的完整特征展示
+         */
+        fun addPhoneInfoToCompare(phoneCompare: List<PhoneEntity>): String {
+            val promptBuilder = StringBuilder()
+
+            if (phoneCompare.isNotEmpty()) {
+                promptBuilder.append("当前共有 ${phoneCompare.size}款手机需要进行比较，详细信息如下：\n\n")
+
+                // 展示每一款手机的完整信息
+                phoneCompare.forEachIndexed { index, phone ->
+                    promptBuilder.append("${index + 1}. ${phone.phoneModel}\n")
+                    promptBuilder.append("   品牌: ${phone.brandName}\n")
+                    promptBuilder.append("   市场名: ${phone.marketName}\n")
+                    promptBuilder.append("   内存配置: ${phone.memoryConfig}\n")
+                    promptBuilder.append("   前摄: ${phone.frontCamera}\n")
+                    promptBuilder.append("   后摄: ${phone.rearCamera}\n")
+                    promptBuilder.append("   分辨率: ${phone.resolution}\n")
+                    promptBuilder.append("   屏幕尺寸: ${phone.screenSize}\n")
+                    promptBuilder.append("   主要卖点: ${phone.sellingPoint}\n")
+                    promptBuilder.append("   价格: ${phone.price}\n")
+                    if (index < phoneCompare.size - 1) {
+                        promptBuilder.append("\n")
+                    }
+                }
+
+                promptBuilder.append("\n\n请基于以上${phoneCompare.size}款手机的特点给出总结，比如各自的特长在哪里，你觉得哪一个更优。\n")
+                return promptBuilder.toString()
+            }
+
+            return ""
         }
         
         /**

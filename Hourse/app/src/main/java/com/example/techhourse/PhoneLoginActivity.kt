@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
+import com.example.techhourse.utils.SnackbarUtils
 
 class PhoneLoginActivity : AppCompatActivity() {
 
@@ -47,23 +48,23 @@ class PhoneLoginActivity : AppCompatActivity() {
         // 帮助按钮点击事件
         val tvHelp = findViewById<TextView>(R.id.tv_help)
         tvHelp.setOnClickListener {
-            Snackbar.make(findViewById(android.R.id.content), "帮助", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "帮助")
         }
 
         // 第三方登录点击事件
         val ivWechat = findViewById<ImageView>(R.id.iv_wechat_login)
         ivWechat.setOnClickListener {
-            Snackbar.make(findViewById(android.R.id.content), "微信登录", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "微信登录")
         }
 
         val ivQQ = findViewById<ImageView>(R.id.iv_qq_login)
         ivQQ.setOnClickListener {
-            Snackbar.make(findViewById(android.R.id.content), "QQ登录", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "QQ登录")
         }
 
         val ivApple = findViewById<ImageView>(R.id.iv_weibo_login)
         ivApple.setOnClickListener {
-            Snackbar.make(findViewById(android.R.id.content), "微博登录", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "微博登录")
         }
 
     }
@@ -73,22 +74,22 @@ class PhoneLoginActivity : AppCompatActivity() {
 
         // 验证手机号
         if (phoneNumber.isEmpty()) {
-            Snackbar.make(findViewById(android.R.id.content), "请输入手机号", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "请输入手机号")
             return
         }
 
         if (!isValidPhoneNumber(phoneNumber)) {
-            Snackbar.make(findViewById(android.R.id.content), "请输入正确的手机号", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "请输入正确的手机号")
             return
         }
 
         // 验证用户协议
         if (!cbAgreement.isChecked) {
-            Snackbar.make(findViewById(android.R.id.content), "请先同意用户协议", Snackbar.LENGTH_SHORT).show()
+            SnackbarUtils.showNormalSnackbar(this, "请先同意用户协议")
             return
         }
 
-        Snackbar.make(findViewById(android.R.id.content), "登录成功", Snackbar.LENGTH_SHORT).show()
+        SnackbarUtils.showNormalSnackbar(this, "登录成功")
         finish()
     }
 

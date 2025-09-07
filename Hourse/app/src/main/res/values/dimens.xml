@@ -2,4 +2,6 @@
 <resources>
     <!-- 网格间距 -->
     <dimen name="grid_spacing">8dp</dimen>
+    <!-- 手机图片尺寸 -->
+    <dimen name="phone_image_size">120dp</dimen>
 </resources>

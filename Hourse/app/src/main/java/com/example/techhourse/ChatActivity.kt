@@ -22,10 +22,11 @@ import com.example.techhourse.database.AppDatabase
 import com.example.techhourse.utils.SystemPromptGenerator
 import com.example.techhourse.utils.TestDataGenerator
 import com.google.android.material.snackbar.Snackbar
+import com.example.techhourse.utils.SnackbarUtils
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.TimeoutCancellationException
-import OpenAIApiClient
+import com.example.techhourse.OpenAIApiClient
 
 class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     
@@ -78,7 +79,7 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     
     private fun initChatComponents() {
         // 初始化OpenAI客户端
-        openAIClient = OpenAIApiClient()
+        openAIClient = OpenAIApiClient.getInstance()
         
         // 初始化聊天适配器
         chatAdapter = ChatAdapter(messages)
@@ -106,7 +107,7 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
          chatAdapter.notifyDataSetChanged()
          showWelcomeScreen()
          etQuery.text.clear()
-         Snackbar.make(findViewById(android.R.id.content), "已开始新对话", Snackbar.LENGTH_SHORT).show()
+         SnackbarUtils.showNormalSnackbar(this, "已开始新对话")
      }
      
      private fun sendMessage(messageText: String) {
@@ -214,7 +215,7 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
             R.id.nav_check_update -> {
                 // 提示版本信息
-                Snackbar.make(findViewById(android.R.id.content), "目前已是最新版本", Snackbar.LENGTH_SHORT).show()
+                SnackbarUtils.showNormalSnackbar(this, "目前已是最新版本")
             }
             R.id.nav_proto -> {
                 // 展示服务协议

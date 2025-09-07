@@ -1,3 +1,5 @@
+package com.example.techhourse
+
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,11 +12,20 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import java.util.concurrent.TimeUnit
 
-// 将 API_KEY 作为构造函数参数传入
-class OpenAIApiClient {
+// 使用单例模式避免资源竞争
+class OpenAIApiClient private constructor() {
 
     companion object {
         private const val API_KEY = "sk-a1ea1c4273524e38a2af8718abe3f595"
+        
+        @Volatile
+        private var INSTANCE: OpenAIApiClient? = null
+        
+        fun getInstance(): OpenAIApiClient {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: OpenAIApiClient().also { INSTANCE = it }
+            }
+        }
         
         fun isApiKeyConfigured(): Boolean {
             return API_KEY.isNotEmpty() && API_KEY.startsWith("sk-")
@@ -43,7 +54,9 @@ class OpenAIApiClient {
     suspend fun chatCompletion(message: String, systemPrompt: String? = null): String {
         return withContext(Dispatchers.IO) {
             try {
-                Log.d("OpenAIApiClient", "Starting API request with message: $message")
+                Log.d("OpenAIApiClient", "Starting API request...")
+                Log.d("OpenAIApiClient", "Message length: ${message.length}")
+                Log.d("OpenAIApiClient", "SystemPrompt length: ${systemPrompt?.length ?: 0}")
                 
                 val messages = mutableListOf<ChatMessage>()
                 
@@ -55,6 +68,7 @@ class OpenAIApiClient {
                             content = it
                         )
                     )
+                    Log.d("OpenAIApiClient", "Added system prompt")
                 }
                 
                 // 添加用户消息
@@ -64,11 +78,17 @@ class OpenAIApiClient {
                         content = message
                     )
                 )
+                Log.d("OpenAIApiClient", "Added user message")
                 
                 val requestBody = OpenAIChatRequest(
                     model = "qwen-plus",
                     messages = messages
                 )
+                
+                // 计算总的字符数
+                val totalChars = messages.sumOf { it.content.length }
+                Log.d("OpenAIApiClient", "Total characters in request: $totalChars")
+                Log.d("OpenAIApiClient", "Total messages count: ${messages.size}")
 
                 Log.d("OpenAIApiClient", "Making API call to Qwen Plus...")
                 // 使用 Retrofit 的异步执行方法
