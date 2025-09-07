@@ -15,7 +15,7 @@ interface PhoneDao {
     @Query("SELECT * FROM phone_library WHERE id = :id")
     suspend fun getPhoneById(id: Int): PhoneEntity?
     
-    @Query("SELECT * FROM phone_library WHERE brandName = :brandName")
+    @Query("SELECT * FROM phone_library WHERE LOWER(brandName) = :brandName")
     suspend fun getPhonesByBrand(brandName: String): List<PhoneEntity>
     
     @Query("SELECT * FROM phone_library WHERE phoneModel LIKE '%' || :keyword || '%' OR marketName LIKE '%' || :keyword || '%'")

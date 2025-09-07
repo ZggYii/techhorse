@@ -100,6 +100,10 @@
         <activity
             android:name=".PhoneLibraryActivity"
             android:exported="false" />
+            
+        <activity
+            android:name=".PhoneDetailActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

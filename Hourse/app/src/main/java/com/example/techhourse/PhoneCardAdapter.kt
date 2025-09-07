@@ -21,7 +21,7 @@ class PhoneCardAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhoneCardViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_phone_card, parent, false)
+            .inflate(R.layout.item_phone, parent, false)
         return PhoneCardViewHolder(view)
     }
 

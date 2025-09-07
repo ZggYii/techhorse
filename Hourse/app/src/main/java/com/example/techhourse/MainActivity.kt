@@ -1,6 +1,9 @@
 package com.example.techhourse
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +16,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -53,34 +57,49 @@ class MainActivity : AppCompatActivity() {
     private val historyPhoneCards = mutableListOf<PhoneCard>()
     private lateinit var historyAdapter: HistoryCardAdapter
     
+    // 广播接收器
+    private lateinit var historyBroadcastReceiver: BroadcastReceiver
+    
+    companion object {
+        const val ACTION_ADD_TO_HISTORY = "com.example.techhourse.ADD_TO_HISTORY"
+        const val EXTRA_PHONE_ID = "phone_id"
+        const val EXTRA_PHONE_NAME = "phone_name"
+        const val EXTRA_PHONE_PRICE = "phone_price"
+        const val EXTRA_PHONE_IMAGE_RESOURCE = "phone_image_resource"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        
+
         initViews()
         setupTabBar()
         setupRecyclerView()
         setupHistoryRecyclerView()
         setupSearchFunction()
         setDefaultTab()
-        
+
         // 启动时检查数据库状态并初始化
         initializeDatabaseOnStartup()
+        
+        // 初始化广播接收器
+        setupBroadcastReceiver()
     }
-    
+
     private fun initializeDatabaseOnStartup() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // 获取数据库实例
                 val database = AppDatabase.getDatabase(this@MainActivity)
-                
-                // 1. 检查并初始化手机库数据
+
+                // 1. 重新初始化手机库数据（因为添加了新的图片字段）
+                // DatabaseInitializer.reinitializePhoneData(this@MainActivity, database.phoneDao())
                 DatabaseInitializer.initializePhoneData(this@MainActivity, database.phoneDao())
-                
+
                 // 2. 检查用户行为表是否有数据
                 val userBehaviorCount = database.userBehaviorDao().getUserBehaviorCount()
-                
+
                 // 切换到主线程更新UI
                 withContext(Dispatchers.Main) {
                     if (userBehaviorCount == 0) {
@@ -98,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                     }
                 }
-                
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 // 如果初始化出错，仍然显示权限对话框
@@ -110,35 +129,35 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun initViews() {
         // 初始化Tab布局
         tabHome = findViewById(R.id.tab_home)
         tabChat = findViewById(R.id.tab_chat)
         tabCompare = findViewById(R.id.tab_compare)
         tabMore = findViewById(R.id.tab_more)
-        
+
         // 初始化图标
         ivHome = findViewById(R.id.iv_home)
         ivChat = findViewById(R.id.iv_chat)
         ivCompare = findViewById(R.id.iv_compare)
         ivMore = findViewById(R.id.iv_more)
-        
+
         // 初始化文本
         tvHome = findViewById(R.id.tv_home)
         tvChat = findViewById(R.id.tv_chat)
         tvCompare = findViewById(R.id.tv_compare)
         tvMore = findViewById(R.id.tv_more)
-        
+
         // 初始化RecyclerView
         rvPhoneCards = findViewById(R.id.rv_phone_cards)
         rvHistoryCards = findViewById(R.id.his_phone_cards)
-        
+
         // 初始化搜索相关视图
         searchText = findViewById(R.id.search_text)
         searchButton = findViewById(R.id.searchForCondi)
     }
-    
+
     private fun setupTabBar() {
         // 设置点击监听器
         tabHome.setOnClickListener { switchTab(0) }
@@ -146,58 +165,98 @@ class MainActivity : AppCompatActivity() {
         tabCompare.setOnClickListener { switchTab(2) }
         tabMore.setOnClickListener { switchTab(3) }
     }
-    
+
     private fun setupRecyclerView() {
         // 创建手机数据
         val phoneCards = listOf(
-            PhoneCard(1, "Itel", "性价比之王", "联发科", R.mipmap.itel),
-            PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.tecno),
-            PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix)
+            PhoneCard(1, "TECNO", "中高端手机", "联发科", R.mipmap.image4),
+            PhoneCard(2, "itel", "性价比之王", "联发科", R.mipmap.image31),
+            PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.image9)
         )
-        
+
         // 设置布局管理器（水平滚动）
         rvPhoneCards.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        
+
         // 设置适配器
         val adapter = PhoneCardAdapter(phoneCards) { phoneCard ->
-            // 点击事件处理
-            Snackbar.make(findViewById(android.R.id.content), "点击了: ${phoneCard.name}", Snackbar.LENGTH_SHORT).show()
-            
-            // 添加到历史记录
-            addToHistory(phoneCard)
+            // 点击事件处理 - 跳转到PhoneLibraryActivity并传递筛选条件
+            val intent = Intent(this, PhoneLibraryActivity::class.java)
+            intent.putExtra(PhoneLibraryActivity.EXTRA_SEARCH_KEYWORD, phoneCard.name)
+            startActivity(intent)
         }
-        
+
         rvPhoneCards.adapter = adapter
     }
-    
+
     private fun setupHistoryRecyclerView() {
         // 设置布局管理器（水平滚动）
         rvHistoryCards.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        
+
         // 设置适配器
         historyAdapter = HistoryCardAdapter(historyPhoneCards) { phoneCard ->
-            // 历史记录点击事件处理
-            Snackbar.make(findViewById(android.R.id.content), "历史记录: ${phoneCard.name}", Snackbar.LENGTH_SHORT).show()
+            // 历史记录点击事件处理 - 通过id查询数据库并跳转到PhoneDetailActivity
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val database = AppDatabase.getDatabase(this@MainActivity)
+                    val phoneEntity = database.phoneDao().getPhoneById(phoneCard.id)
+                    
+                    withContext(Dispatchers.Main) {
+                        if (phoneEntity != null) {
+                            // 跳转到PhoneDetailActivity并传递完整的手机信息
+                            val intent = Intent(this@MainActivity, PhoneDetailActivity::class.java).apply {
+                                putExtra(PhoneDetailActivity.EXTRA_PHONE_ID, phoneEntity.id)
+                                putExtra(PhoneDetailActivity.EXTRA_PHONE_MODEL, phoneEntity.phoneModel)
+                                putExtra(PhoneDetailActivity.EXTRA_BRAND_NAME, phoneEntity.brandName)
+                                putExtra(PhoneDetailActivity.EXTRA_MARKET_NAME, phoneEntity.marketName)
+                                putExtra(PhoneDetailActivity.EXTRA_MEMORY_CONFIG, phoneEntity.memoryConfig)
+                                putExtra(PhoneDetailActivity.EXTRA_FRONT_CAMERA, phoneEntity.frontCamera)
+                                putExtra(PhoneDetailActivity.EXTRA_REAR_CAMERA, phoneEntity.rearCamera)
+                                putExtra(PhoneDetailActivity.EXTRA_RESOLUTION, phoneEntity.resolution)
+                                putExtra(PhoneDetailActivity.EXTRA_SCREEN_SIZE, phoneEntity.screenSize)
+                                putExtra(PhoneDetailActivity.EXTRA_SELLING_POINT, phoneEntity.sellingPoint)
+                                putExtra(PhoneDetailActivity.EXTRA_PRICE, phoneEntity.price)
+                                putExtra(PhoneDetailActivity.EXTRA_IMAGE_RESOURCE_ID, phoneEntity.imageResourceId)
+                            }
+                            startActivity(intent)
+                        } else {
+                            // 如果数据库中没有找到对应的手机信息，显示提示
+                            Snackbar.make(
+                                findViewById(android.R.id.content),
+                                "未找到该手机的详细信息",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "加载手机信息失败",
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
         }
-        
+
         rvHistoryCards.adapter = historyAdapter
-        
+
         // 添加一些初始历史记录数据用于测试
-        addToHistory(PhoneCard(1, "Itel", "性价比之王", "联发科", R.mipmap.itel))
-        addToHistory(PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.tecno))
-        addToHistory(PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix))
+//        addToHistory(PhoneCard(1, "itel", "性价比之王", "联发科", R.mipmap.image2))
+//        addToHistory(PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.image12))
+//        addToHistory(PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix))
     }
-    
+
     private fun setupSearchFunction() {
         searchButton.setOnClickListener {
             val searchQuery = searchText.text.toString().trim()
-            
+
             if (searchQuery.isEmpty()) {
                 // 如果搜索框为空，显示所有手机信息
                 startPhoneLibraryActivity(null)
                 return@setOnClickListener
             }
-            
+
             // 判断输入类型
             if (isEnglishInput(searchQuery)) {
                 // 英文输入：转为小写并进行模糊匹配
@@ -208,32 +267,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun isEnglishInput(input: String): Boolean {
         // 检查输入是否只包含英文字母（包括大小写）
         return input.matches(Regex("^[a-zA-Z\\s]+$"))
     }
-    
+
     private fun startPhoneLibraryActivity(searchQuery: String?) {
         val intent = Intent(this, PhoneLibraryActivity::class.java)
         searchQuery?.let {
-            intent.putExtra("search_query", it)
+            intent.putExtra(PhoneLibraryActivity.EXTRA_SEARCH_KEYWORD, it)
         }
         startActivity(intent)
     }
-    
+
     private fun addToHistory(phoneCard: PhoneCard) {
         // 检查是否已经存在相同ID的记录
         val existingIndex = historyPhoneCards.indexOfFirst { it.id == phoneCard.id }
-        
+
         if (existingIndex != -1) {
             // 如果已存在，移除旧记录
             historyPhoneCards.removeAt(existingIndex)
         }
-        
+
         // 添加到历史记录开头
         historyPhoneCards.add(0, phoneCard)
-        
+
         // 限制历史记录数量为5个
         if (historyPhoneCards.size > 5) {
             historyPhoneCards.removeAt(historyPhoneCards.size - 1)
@@ -258,8 +317,8 @@ class MainActivity : AppCompatActivity() {
                     // 获取数据库实例
                     val database = AppDatabase.getDatabase(this@MainActivity)
                     
-                    // 初始化手机数据库（如果还没有初始化）
-                    DatabaseInitializer.initializePhoneData(this@MainActivity, database.phoneDao())
+                    // 重新初始化手机数据库（确保包含图片字段）
+                    DatabaseInitializer.reinitializePhoneData(this@MainActivity, database.phoneDao())
                     
                     // 获取手机使用信息
                     val phoneUsageInfoManager = PhoneUsageInfoManager(this@MainActivity)
@@ -304,9 +363,51 @@ class MainActivity : AppCompatActivity() {
         bottomSheetDialog.show()
     }
     
+    private fun setupBroadcastReceiver() {
+        historyBroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == ACTION_ADD_TO_HISTORY) {
+                    val phoneId = intent.getIntExtra(EXTRA_PHONE_ID, -1)
+                    val phoneName = intent.getStringExtra(EXTRA_PHONE_NAME) ?: ""
+                    val phonePrice = intent.getStringExtra(EXTRA_PHONE_PRICE) ?: ""
+                    val phoneImageResource = intent.getIntExtra(EXTRA_PHONE_IMAGE_RESOURCE, 0)
+                    
+                    // 创建PhoneCard对象并添加到历史记录
+                    val phoneCard = PhoneCard(
+                        id = phoneId,
+                        name = phoneName,
+                        description = "", // 历史记录不需要description
+                        price = phonePrice,
+                        imageResource = phoneImageResource
+                    )
+
+                    addToHistory(phoneCard)
+                }
+            }
+        }
+
+        // 注册广播接收器
+        val filter = IntentFilter(ACTION_ADD_TO_HISTORY)
+        // 动态注册广播
+        registerReceiver(historyBroadcastReceiver, filter, Context.RECEIVER_EXPORTED)
+
+    }
+
     private fun setDefaultTab() {
         // 默认选中首页
         switchTab(0)
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // 当从其他Activity返回时，重置导航栏到首页状态
+        setDefaultTab()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // 注销广播接收器
+        unregisterReceiver(historyBroadcastReceiver)
     }
     
     private fun switchTab(position: Int) {

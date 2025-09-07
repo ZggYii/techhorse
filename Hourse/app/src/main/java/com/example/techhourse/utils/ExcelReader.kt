@@ -1,6 +1,7 @@
 package com.example.techhourse.utils
 
 import android.content.Context
+import com.example.techhourse.R
 import com.example.techhourse.database.entity.PhoneEntity
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.InputStream
@@ -19,6 +20,17 @@ class ExcelReader {
          */
         fun readPhonesFromExcel(context: Context, fileName: String): List<PhoneEntity> {
             val phoneList = mutableListOf<PhoneEntity>()
+            
+            // 图片资源数组，按顺序分配给每个手机
+            val imageResources = arrayOf(
+                R.mipmap.image1, R.mipmap.image2, R.mipmap.image3, R.mipmap.image4, R.mipmap.image5,
+                R.mipmap.image6, R.mipmap.image7, R.mipmap.image8, R.mipmap.image9, R.mipmap.image10,
+                R.mipmap.image11, R.mipmap.image12, R.mipmap.image13, R.mipmap.image14, R.mipmap.image15,
+                R.mipmap.image16, R.mipmap.image17, R.mipmap.image18, R.mipmap.image19, R.mipmap.image20,
+                R.mipmap.image21, R.mipmap.image22, R.mipmap.image23, R.mipmap.image24, R.mipmap.image25,
+                R.mipmap.image26, R.mipmap.image27, R.mipmap.image28, R.mipmap.image29, R.mipmap.image30,
+                R.mipmap.image31, R.mipmap.image32, R.mipmap.image33, R.mipmap.image34
+            )
             
             try {
                 val inputStream: InputStream = context.assets.open(fileName)
@@ -42,6 +54,9 @@ class ExcelReader {
                         val sellingPoint = getCellValueAsString(row.getCell(8)) ?: ""
                         val price = getCellValueAsString(row.getCell(9)) ?: ""
                         
+                        // 按顺序分配图片资源ID，如果超出数组长度则循环使用
+                        val imageResourceId = imageResources[phoneList.size % imageResources.size]
+                        
                         val phone = PhoneEntity(
                             phoneModel = phoneModel,
                             brandName = brandName,
@@ -52,7 +67,8 @@ class ExcelReader {
                             resolution = resolution,
                             screenSize = screenSize,
                             sellingPoint = sellingPoint,
-                            price = price
+                            price = price,
+                            imageResourceId = imageResourceId
                         )
                         
                         phoneList.add(phone)

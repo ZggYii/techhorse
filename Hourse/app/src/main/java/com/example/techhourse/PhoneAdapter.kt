@@ -1,5 +1,6 @@
 package com.example.techhourse
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,9 +38,13 @@ class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adap
     override fun onBindViewHolder(holder: PhoneViewHolder, position: Int) {
         val phone = phoneList[position]
         
-        // 设置随机图片
-        val randomImageIndex = (phone.id % phoneImages.size)
-        holder.phoneImage.setImageResource(phoneImages[randomImageIndex])
+        // 使用数据库中的图片资源ID，如果为0则使用默认图片
+        val imageResourceId = if (phone.imageResourceId != 0) {
+            phone.imageResourceId
+        } else {
+            R.mipmap.icon_iphone // 默认图片
+        }
+        holder.phoneImage.setImageResource(imageResourceId)
         
         // 设置手机名称（品牌名 + 型号）
         val phoneName = if (phone.brandName.isNotEmpty()) {
@@ -65,6 +70,27 @@ class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adap
             phone.memoryConfig
         } else {
             "配置信息"
+        }
+        
+        // 设置点击事件，跳转到手机详情页面
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, PhoneDetailActivity::class.java).apply {
+                putExtra(PhoneDetailActivity.EXTRA_PHONE_ID, phone.id)
+                putExtra(PhoneDetailActivity.EXTRA_PHONE_MODEL, phone.phoneModel)
+                putExtra(PhoneDetailActivity.EXTRA_BRAND_NAME, phone.brandName)
+                putExtra(PhoneDetailActivity.EXTRA_PRICE, phone.price)
+                putExtra(PhoneDetailActivity.EXTRA_MEMORY_CONFIG, phone.memoryConfig)
+                putExtra(PhoneDetailActivity.EXTRA_MARKET_NAME, phone.marketName)
+                putExtra(PhoneDetailActivity.EXTRA_IMAGE_RESOURCE_ID, phone.imageResourceId)
+                // 将数据库中的其他字段映射到PhoneDetailActivity期望的字段
+                putExtra(PhoneDetailActivity.EXTRA_FRONT_CAMERA, phone.frontCamera) // 使用camera字段作为前置摄像头
+                putExtra(PhoneDetailActivity.EXTRA_REAR_CAMERA, phone.rearCamera) // 使用camera字段作为后置摄像头
+                putExtra(PhoneDetailActivity.EXTRA_RESOLUTION, phone.resolution) // 使用display字段作为分辨率
+                putExtra(PhoneDetailActivity.EXTRA_SCREEN_SIZE, phone.screenSize) // 使用display字段作为屏幕尺寸
+                putExtra(PhoneDetailActivity.EXTRA_SELLING_POINT, phone.sellingPoint) // 使用description作为卖点
+            }
+            context.startActivity(intent)
         }
     }
     

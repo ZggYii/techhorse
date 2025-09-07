@@ -20,5 +20,6 @@ data class PhoneEntity(
     val resolution: String,        // 分辨率
     val screenSize: String,        // 屏幕尺寸
     val sellingPoint: String,      // 卖点
-    val price: String              // 价格
+    val price: String,             // 价格
+    val imageResourceId: Int = 0   // 图片资源ID
 )
