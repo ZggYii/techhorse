@@ -8,6 +8,10 @@ import android.widget.LinearLayout
 import android.content.Intent
 import android.widget.Button
 import kotlin.random.Random
+import com.example.techhourse.utils.RoomUserDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SettingsDetailActivity : AppCompatActivity() {
 
@@ -59,15 +63,25 @@ class SettingsDetailActivity : AppCompatActivity() {
         // 设置切换账号点击事件
         val switchCountButton = findViewById<Button>(R.id.switchCount)
         switchCountButton.setOnClickListener {
-            val intent = Intent(this, PhoneLoginActivity::class.java)
-            startActivity(intent)
+            val roomUserDatabase = RoomUserDatabase(this)
+            CoroutineScope(Dispatchers.Main).launch {
+                roomUserDatabase.logout()
+                val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
 
         // 设置退出登录点击事件
         val logoutButton = findViewById<Button>(R.id.logout)
         logoutButton.setOnClickListener {
-            val intent = Intent(this, PhoneLoginActivity::class.java)
-            startActivity(intent)
+            val roomUserDatabase = RoomUserDatabase(this)
+            CoroutineScope(Dispatchers.Main).launch {
+                roomUserDatabase.logout()
+                val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
     }
     

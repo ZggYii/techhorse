@@ -104,6 +104,17 @@
         <activity
             android:name=".PhoneDetailActivity"
             android:exported="false" />
+            
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SetPasswordActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -26,8 +26,10 @@ import com.example.techhourse.database.DatabaseInitializer
 import com.example.techhourse.PhoneUsageInfoManager
 import com.example.techhourse.utils.UserBehaviorProcessor
 import com.example.techhourse.utils.SnackbarUtils
+import com.example.techhourse.utils.RoomUserDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -55,6 +57,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchText: EditText
     private lateinit var searchButton: ImageView
     
+    // 用户头像
+    private lateinit var userAvatar: ImageView
+    
     private val historyPhoneCards = mutableListOf<PhoneCard>()
     private lateinit var historyAdapter: HistoryCardAdapter
     
@@ -79,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupHistoryRecyclerView()
         setupSearchFunction()
+        setupUserAvatar()
         setDefaultTab()
 
         // 启动时检查数据库状态并初始化
@@ -153,6 +159,9 @@ class MainActivity : AppCompatActivity() {
         // 初始化搜索相关视图
         searchText = findViewById(R.id.search_text)
         searchButton = findViewById(R.id.searchForCondi)
+        
+        // 初始化用户头像
+        userAvatar = findViewById(R.id.user_avatar)
     }
 
     private fun setupTabBar() {
@@ -234,6 +243,87 @@ class MainActivity : AppCompatActivity() {
 //        addToHistory(PhoneCard(1, "itel", "性价比之王", "联发科", R.mipmap.image2))
 //        addToHistory(PhoneCard(2, "TECNO", "中高端手机", "联发科", R.mipmap.image12))
 //        addToHistory(PhoneCard(3, "Infinix", "发烧友最爱", "联发科", R.mipmap.infinix))
+    }
+
+    private fun setupUserAvatar() {
+        userAvatar.setOnClickListener {
+            showUserProfileBottomSheet()
+        }
+    }
+    
+    private fun showUserProfileBottomSheet() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_user_profile, null)
+        bottomSheetDialog.setContentView(bottomSheetView)
+        
+        // 获取当前用户信息并显示手机号
+        val roomUserDatabase = RoomUserDatabase(this)
+        val phoneNumInfo = bottomSheetView.findViewById<TextView>(R.id.phoneNum_info)
+        
+        CoroutineScope(Dispatchers.Main).launch {
+            val currentUser = roomUserDatabase.getCurrentUser()
+            if (currentUser != null) {
+                // 隐私处理：4-7位显示为*号
+                val phoneNumber = currentUser.phoneNumber
+                val maskedPhone = if (phoneNumber.length >= 7) {
+                    phoneNumber.substring(0, 3) + "****" + phoneNumber.substring(7)
+                } else {
+                    phoneNumber // 如果手机号长度不足7位，直接显示
+                }
+                phoneNumInfo?.text = maskedPhone
+            } else {
+                phoneNumInfo?.text = "未登录"
+            }
+        }
+        
+        // 设置底部弹出框的点击事件
+        bottomSheetView.findViewById<LinearLayout>(R.id.ll_phone)?.setOnClickListener {
+            // 处理手机号点击事件
+            bottomSheetDialog.dismiss()
+            // 可以跳转到手机号绑定页面
+        }
+        
+        bottomSheetView.findViewById<LinearLayout>(R.id.ll_passw)?.setOnClickListener {
+            // 处理密码点击事件
+            bottomSheetDialog.dismiss()
+            // 可以跳转到密码设置页面
+        }
+        
+        bottomSheetView.findViewById<LinearLayout>(R.id.ll_trans)?.setOnClickListener {
+            // 处理交易账户点击事件
+            bottomSheetDialog.dismiss()
+            // 可以跳转到交易账户页面
+        }
+        
+        bottomSheetView.findViewById<LinearLayout>(R.id.ll_real)?.setOnClickListener {
+            // 处理实名认证点击事件
+            bottomSheetDialog.dismiss()
+            // 可以跳转到实名认证页面
+        }
+        
+        bottomSheetView.findViewById<Button>(R.id.switchCount)?.setOnClickListener {
+            // 处理切换账号点击事件
+            bottomSheetDialog.dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                roomUserDatabase.logout()
+                val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+        
+        bottomSheetView.findViewById<Button>(R.id.logout)?.setOnClickListener {
+            // 处理退出登录点击事件
+            bottomSheetDialog.dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                roomUserDatabase.logout()
+                val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+        
+        bottomSheetDialog.show()
     }
 
     private fun setupSearchFunction() {

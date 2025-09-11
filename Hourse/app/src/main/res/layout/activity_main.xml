@@ -9,30 +9,47 @@
     tools:context=".MainActivity">
 
     <!-- 主内容区域 -->
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/fragment_container"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        app:layout_constraintBottom_toTopOf="@+id/search"
+        android:layout_marginTop="46dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toTopOf="@+id/search_container"
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- 默认显示Home内容 -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            android:layout_weight="1"
             android:text="主页"
             android:textStyle="bold"
-            android:layout_marginStart="20dp"
             android:textSize="44sp"
             android:textColor="@color/black" />
 
-    </FrameLayout>
+        <!-- 个人账号头像 -->
+        <ImageView
+            android:id="@+id/user_avatar"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@mipmap/aacount"
+            android:layout_gravity="center_vertical"
+            android:scaleType="centerInside"
+            android:layout_marginEnd="15dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+    </LinearLayout>
 
 
+    <!-- 搜索框区域 -->
     <LinearLayout
-        android:id="@+id/search"
+        android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:layout_marginTop="10dp"
@@ -42,23 +59,23 @@
         android:background="@drawable/menu_item_background"
         app:layout_constraintTop_toBottomOf="@+id/fragment_container">
 
-
-        <EditText
-            android:id="@+id/search_text"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_marginStart="20dp"
-            android:layout_weight="6"
-            android:hint="搜索感兴趣的手机"
-            android:background="@null"/>
-
         <ImageView
             android:id="@+id/searchForCondi"
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:layout_weight="1"
+            android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:src="@mipmap/icon_search"/>
+
+        <!-- 搜索框 -->
+        <EditText
+            android:id="@+id/search_text"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_weight="6"
+            android:hint="搜索感兴趣的手机"
+            android:background="@null"/>
 
     </LinearLayout>
 
@@ -72,7 +89,7 @@
         android:layout_marginStart="20dp"
         android:textStyle="bold"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@id/search"/>
+        app:layout_constraintTop_toBottomOf="@id/search_container"/>
 
     <!-- 手机卡片RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -91,7 +108,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="历史记录"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="35dp"
         android:layout_marginStart="20dp"
         android:textStyle="bold"
         android:textSize="18sp"
