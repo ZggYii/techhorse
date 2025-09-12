@@ -16,8 +16,6 @@ class PhoneDetailActivity : AppCompatActivity() {
     // UI组件
     private lateinit var phoneDetailImage: ImageView
     private lateinit var phoneDetailName: TextView
-    private lateinit var brandName: TextView
-    private lateinit var marketName: TextView
     private lateinit var phoneDetailPrice: TextView
     private lateinit var memoryConfig: TextView
     private lateinit var screenSize: TextView
@@ -55,8 +53,6 @@ class PhoneDetailActivity : AppCompatActivity() {
     private fun initViews() {
         phoneDetailImage = findViewById(R.id.iv_phone_detail_image)
         phoneDetailName = findViewById(R.id.tv_phone_detail_name)
-        brandName = findViewById(R.id.tv_brand_name)
-        marketName = findViewById(R.id.tv_market_name)
         phoneDetailPrice = findViewById(R.id.tv_phone_detail_price)
         memoryConfig = findViewById(R.id.tv_memory_config)
         screenSize = findViewById(R.id.tv_screen_size)
@@ -88,19 +84,8 @@ class PhoneDetailActivity : AppCompatActivity() {
             phoneDetailImage.setImageResource(R.mipmap.icon_iphone) // 默认图片
         }
         
-        // 设置手机名称（品牌名 + 型号）
-        val fullPhoneName = if (brandNameStr.isNotEmpty()) {
-            "$brandNameStr $phoneModel"
-        } else {
-            phoneModel
-        }
-        phoneDetailName.text = fullPhoneName
-        
-        // 设置品牌名
-        brandName.text = if (brandNameStr.isNotEmpty()) brandNameStr else "未知品牌"
-        
-        // 设置市场名
-        marketName.text = if (marketNameStr.isNotEmpty()) marketNameStr else "暂无市场名"
+        // 设置手机名称
+        phoneDetailName.text = if (phoneModel.isNotEmpty()) phoneModel else "未知型号"
         
         // 设置价格
         phoneDetailPrice.text = if (priceStr.isNotEmpty()) {
@@ -132,7 +117,7 @@ class PhoneDetailActivity : AppCompatActivity() {
         sellingPoint.text = if (sellingPointStr.isNotEmpty()) sellingPointStr else "暂无卖点信息"
         
         // 发送广播到MainActivity添加到历史记录
-        sendHistoryBroadcast(phoneId, fullPhoneName, priceStr, imageResourceId)
+        sendHistoryBroadcast(phoneId, phoneModel, priceStr, imageResourceId)
     }
     
     private fun sendHistoryBroadcast(phoneId: Int, phoneName: String, phonePrice: String, imageResourceId: Int) {

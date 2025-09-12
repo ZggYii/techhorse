@@ -4,353 +4,309 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
+    android:background="#F8F9FA"
+    android:fillViewport="true"
     tools:context=".PhoneDetailActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="10dp"
+        android:clipToPadding="false">
 
         <!-- 手机图片 -->
-        <com.google.android.material.card.MaterialCardView
+        <ImageView
+            android:id="@+id/iv_phone_detail_image"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:layout_height="320dp"
+            android:src="@mipmap/icon_iphone"
+            android:scaleType="centerCrop"
+            android:contentDescription="手机图片"
+            android:layout_marginBottom="24dp"
+            android:layout_marginHorizontal="4dp" />
 
-            <ImageView
-                android:id="@+id/iv_phone_detail_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@mipmap/icon_iphone"
-                android:scaleType="centerCrop"
-                android:contentDescription="手机图片" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 手机基本信息卡片 -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- 手机基本信息 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp"
+            android:paddingHorizontal="8dp">
 
+            <!-- 手机名称 -->
+            <TextView
+                android:id="@+id/tv_phone_detail_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="手机名称"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="#4A5568"
+                android:layout_marginBottom="12dp"
+                android:letterSpacing="0.02"
+                android:gravity="start" />
+
+            <!-- 价格 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="horizontal"
+                android:gravity="start"
+                android:layout_marginTop="4dp">
 
-                <!-- 手机名称 -->
                 <TextView
-                    android:id="@+id/tv_phone_detail_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="手机名称"
-                    android:textSize="24sp"
+                    android:text=""
+                    android:textSize="16sp"
+                    android:textColor="#F56500"
                     android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginEnd="4dp" />
 
-                <!-- 品牌名 -->
+                <TextView
+                    android:id="@+id/tv_phone_detail_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="价格"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="#F56500" />
+
+            </LinearLayout>
+
+            <!-- 内存配置 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="start">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ROM / RAM: "
+                    android:textSize="16sp"
+                    android:textColor="#6B7280"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_memory_config"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="内存配置"
+                    android:textSize="16sp"
+                    android:textColor="#6B7280"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 详细信息（整合配置、摄像头、卖点信息） -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="4dp"
+            android:layout_marginBottom="20dp"
+            android:paddingHorizontal="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="详细规格"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A"
+                    android:layout_marginBottom="20dp"
+                    android:letterSpacing="0.02" />
+
+                <!-- 配置信息部分 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:background="#F8F9FA"
+                    android:padding="10dp"
+                    android:layout_marginBottom="20dp">
 
                     <TextView
-                        android:layout_width="80dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="品牌："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
-
-                    <TextView
-                        android:id="@+id/tv_brand_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="品牌名"
-                        android:textSize="16sp"
-                        android:textColor="@color/primary" />
-
-                </LinearLayout>
-
-                <!-- 市场名 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:text="市场名："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
-
-                    <TextView
-                        android:id="@+id/tv_market_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="市场名"
-                        android:textSize="16sp"
-                        android:textColor="@color/primary" />
-
-                </LinearLayout>
-
-                <!-- 价格 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:text="价格："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
-
-                    <TextView
-                        android:id="@+id/tv_phone_detail_price"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="价格"
+                        android:text="⚙️  配置信息"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="@color/light_primary" />
+                        android:textColor="#374151"
+                        android:layout_marginBottom="16dp" />
+
+
+
+                    <!-- 屏幕尺寸 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="屏幕尺寸"
+                            android:textSize="16sp"
+                            android:textColor="#6B7280"
+                            android:textStyle="normal" />
+
+                        <TextView
+                            android:id="@+id/tv_screen_size"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="屏幕尺寸"
+                            android:textSize="16sp"
+                            android:textColor="#1F2937"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- 分辨率 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:text="分辨率"
+                            android:textSize="16sp"
+                            android:textColor="#6B7280"
+                            android:textStyle="normal" />
+
+                        <TextView
+                            android:id="@+id/tv_resolution"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="分辨率"
+                            android:textSize="16sp"
+                            android:textColor="#1F2937"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 配置信息卡片 -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="配置信息"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- 内存配置 -->
+                <!-- 摄像头信息部分 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:background="#F8F9FA"
+                    android:padding="10dp"
+                    android:layout_marginBottom="20dp">
 
                     <TextView
-                        android:layout_width="100dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="内存配置："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
+                        android:text="📷  摄像头信息"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#374151"
+                        android:layout_marginBottom="16dp" />
 
-                    <TextView
-                        android:id="@+id/tv_memory_config"
-                        android:layout_width="0dp"
+                    <!-- 前摄 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="内存配置"
-                        android:textSize="16sp"
-                        android:textColor="@color/primary" />
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:text="前置"
+                            android:textSize="16sp"
+                            android:textColor="#6B7280"
+                            android:textStyle="normal" />
+
+                        <TextView
+                            android:id="@+id/tv_front_camera"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="前摄信息"
+                            android:textSize="16sp"
+                            android:textColor="#1F2937"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- 后摄 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:text="后置"
+                            android:textSize="16sp"
+                            android:textColor="#6B7280"
+                            android:textStyle="normal" />
+
+                        <TextView
+                            android:id="@+id/tv_rear_camera"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="后摄信息"
+                            android:textSize="16sp"
+                            android:textColor="#1F2937"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-                <!-- 屏幕尺寸 -->
+                <!-- 主要卖点部分 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:orientation="vertical"
+                    android:background="#F8F9FA"
+                    android:padding="10dp">
 
                     <TextView
-                        android:layout_width="100dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="屏幕尺寸："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
+                        android:text="✨  主要卖点"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#374151"
+                        android:layout_marginBottom="16dp" />
 
                     <TextView
-                        android:id="@+id/tv_screen_size"
-                        android:layout_width="0dp"
+                        android:id="@+id/tv_selling_point"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="屏幕尺寸"
+                        android:text="主要卖点信息"
                         android:textSize="16sp"
-                        android:textColor="@color/primary" />
+                        android:textColor="#1F2937"
+                        android:lineSpacingExtra="6dp"
+                        android:lineSpacingMultiplier="1.2" />
 
                 </LinearLayout>
 
-                <!-- 分辨率 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="100dp"
-                        android:layout_height="wrap_content"
-                        android:text="分辨率："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
-
-                    <TextView
-                        android:id="@+id/tv_resolution"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="分辨率"
-                        android:textSize="16sp"
-                        android:textColor="@color/primary" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 摄像头信息卡片 -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="摄像头信息"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- 前摄 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:text="前摄："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
-
-                    <TextView
-                        android:id="@+id/tv_front_camera"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="前摄信息"
-                        android:textSize="16sp"
-                        android:textColor="@color/primary" />
-
-                </LinearLayout>
-
-                <!-- 后摄 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="80dp"
-                        android:layout_height="wrap_content"
-                        android:text="后摄："
-                        android:textSize="16sp"
-                        android:textColor="@color/primary_dark" />
-
-                    <TextView
-                        android:id="@+id/tv_rear_camera"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="后摄信息"
-                        android:textSize="16sp"
-                        android:textColor="@color/primary" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 卖点信息卡片 -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="主要卖点"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:id="@+id/tv_selling_point"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="主要卖点信息"
-                    android:textSize="16sp"
-                    android:textColor="@color/primary"
-                    android:lineSpacingExtra="4dp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
     </LinearLayout>
 

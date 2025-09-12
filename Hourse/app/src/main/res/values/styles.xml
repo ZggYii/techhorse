@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 工具栏标题样式 -->
+    <style name="ToolbarTitleStyle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/toolbar_text</item>
+        <item name="android:letterSpacing">0.02</item>
+        <!-- 移除阴影效果，白色文字在紫色背景上无需阴影 -->
+    </style>
+</resources>
