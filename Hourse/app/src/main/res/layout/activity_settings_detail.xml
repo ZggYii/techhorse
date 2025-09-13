@@ -59,6 +59,7 @@
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/phoneNum_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
@@ -219,7 +220,7 @@
         <Button
             android:id="@+id/switchCount"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:text="@string/swicthCount"
             android:textColor="@color/black"
@@ -234,7 +235,7 @@
         <Button
             android:id="@+id/logout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:text="@string/logout"
             android:textColor="@color/black"/>

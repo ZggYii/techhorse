@@ -113,6 +113,18 @@ class RoomUserDatabase(context: Context) {
     }
     
     /**
+     * 验证用户密码
+     */
+    suspend fun verifyPassword(phoneNumber: String, password: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val user = userInfoDao.getUserByPhoneAndPassword(phoneNumber, password)
+            user != null
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
      * 获取当前登录用户
      */
     suspend fun getCurrentUser(): UserInfoEntity? = withContext(Dispatchers.IO) {

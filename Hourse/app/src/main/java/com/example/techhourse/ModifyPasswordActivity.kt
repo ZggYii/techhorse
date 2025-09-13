@@ -7,8 +7,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.content.Intent
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.example.techhourse.utils.SnackbarUtils
+import com.example.techhourse.utils.RoomUserDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ModifyPasswordActivity : AppCompatActivity() {
 
@@ -121,41 +126,61 @@ class ModifyPasswordActivity : AppCompatActivity() {
             }
         }
 
-        // 这里应该验证当前密码是否正确（实际应用中需要与存储的密码比较）
-        // 为了演示，我们假设当前密码验证通过
+        // 验证当前密码并更新新密码
+        val roomUserDatabase = RoomUserDatabase(this)
         
-        // 密码修改成功
-        SnackbarUtils.showNormalSnackbar(this, "密码修改成功")
-        
-        // 返回结果给SettingsDetailActivity
-        val intent = Intent()
-        intent.putExtra("password_modified", true)
-        setResult(RESULT_OK, intent)
-        
-        finish()
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                // 获取当前用户
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser == null) {
+                    SnackbarUtils.showNormalSnackbar(this@ModifyPasswordActivity, "用户未登录")
+                    return@launch
+                }
+                
+                // 验证当前密码
+                val isCurrentPasswordValid = roomUserDatabase.verifyPassword(currentUser.phoneNumber, currentPassword)
+                if (!isCurrentPasswordValid) {
+                    SnackbarUtils.showNormalSnackbar(this@ModifyPasswordActivity, "当前密码不正确")
+                    return@launch
+                }
+                
+                // 更新密码
+                val success = roomUserDatabase.updatePassword(currentUser.phoneNumber, newPassword)
+                
+                if (success) {
+                    showPasswordUpdateSuccessDialog()
+                } else {
+                    SnackbarUtils.showNormalSnackbar(this@ModifyPasswordActivity, "密码修改失败，请重试")
+                }
+            } catch (e: Exception) {
+                SnackbarUtils.showNormalSnackbar(this@ModifyPasswordActivity, "密码修改失败：${e.message}")
+            }
+        }
     }
 
     private fun isValidPassword(password: String): Boolean {
         // 检查密码长度
-        if (password.length < 8 || password.length > 20) {
-            return false
-        }
-
-        // 检查是否包含至少2种字符类型
-        var hasLetter = false
-        var hasDigit = false
-        var hasSpecial = false
-
-        for (char in password) {
-            when {
-                char.isLetter() -> hasLetter = true
-                char.isDigit() -> hasDigit = true
-                else -> hasSpecial = true
+        return password.length >= 6
+    }
+    
+    private fun showPasswordUpdateSuccessDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("密码修改成功")
+            .setMessage("您的密码已成功修改，请重新登录")
+            .setPositiveButton("确定") { _, _ ->
+                // 退出登录并跳转到登录界面
+                val roomUserDatabase = RoomUserDatabase(this@ModifyPasswordActivity)
+                CoroutineScope(Dispatchers.Main).launch {
+                    roomUserDatabase.logout()
+                    val intent = Intent(this@ModifyPasswordActivity, PhoneLoginActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                    finish()
+                }
             }
-        }
-
-        val typeCount = listOf(hasLetter, hasDigit, hasSpecial).count { it }
-        return typeCount >= 2
+            .setCancelable(false)
+            .show()
     }
 
     override fun onSupportNavigateUp(): Boolean {
