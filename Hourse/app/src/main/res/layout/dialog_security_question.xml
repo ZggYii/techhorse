@@ -79,29 +79,33 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_cancel"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
+            android:layout_width="100dp"
+            android:layout_height="48dp"
             android:text="取消"
             android:textColor="@color/white"
-            android:textSize="16sp"
-            android:background="@drawable/phone_input_background"
-            android:layout_marginEnd="8dp"
-            android:stateListAnimator="@null" />
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:background="@drawable/premium_button_background"
+            android:layout_marginEnd="40dp"
+            android:stateListAnimator="@null"
+            android:elevation="4dp" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_confirm_security"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_weight="1"
+            android:layout_width="100dp"
+            android:layout_height="48dp"
             android:text="确认"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:background="@drawable/login_button_background"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:background="@drawable/premium_button_background"
             android:layout_marginStart="8dp"
-            android:stateListAnimator="@null" />
+            android:stateListAnimator="@null"
+            android:elevation="4dp" />
 
     </LinearLayout>
 
