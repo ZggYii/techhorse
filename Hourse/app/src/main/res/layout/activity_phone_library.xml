@@ -14,13 +14,12 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@drawable/toolbar_gradient_background"
         android:elevation="4dp"
         android:paddingTop="8dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title="手机库"
-        app:titleTextColor="@color/toolbar_text"
+        app:titleTextColor="#4A5568"
         app:titleTextAppearance="@style/ToolbarTitleStyle" />
 
     <!-- 手机列表 -->

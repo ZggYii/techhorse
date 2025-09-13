@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 手机型号对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="手机型号"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_model"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Phone 1"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_model"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Phone 2"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 价格对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="价格"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="¥0"
+                android:textSize="14sp"
+                android:textColor="#B19CD9"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="¥0"
+                android:textSize="14sp"
+                android:textColor="#B19CD9"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 内存配置对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="内存配置"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_memory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_memory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 屏幕尺寸对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="屏幕尺寸"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_screen_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_screen_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 屏幕分辨率对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="屏幕分辨率"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_screen_resolution"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_screen_resolution"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 前置摄像头对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="前置摄像头"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_front_camera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_front_camera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- 后置摄像头对比 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/selector_card_background"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="后置摄像头"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone1_rear_camera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/tv_phone2_rear_camera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+</ScrollView>

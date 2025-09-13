@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 主要卖点 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/selector_card_background"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="主要卖点"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tv_selling_point_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A17 Pro芯片，钛金属设计"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+        <!-- AI分析内容 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/selector_card_background"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/tv_ai_analysis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI正在分析中..."
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:lineSpacingExtra="6dp"
+                android:minHeight="200dp"
+                android:gravity="top" />
+
+        </LinearLayout>
+
+        <!-- 分析说明 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/selector_card_background"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💡 分析说明"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• AI分析基于手机的核心参数和市场表现\n• 提供客观的性能评估和购买建议\n• 分析结果仅供参考，请结合个人需求选择"
+                android:textSize="12sp"
+                android:textColor="#999999"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

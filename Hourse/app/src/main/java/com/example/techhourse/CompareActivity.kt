@@ -12,28 +12,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.techhourse.database.AppDatabase
 import com.example.techhourse.database.entity.PhoneEntity
 import com.example.techhourse.utils.SnackbarUtils
-import com.example.techhourse.utils.SystemPromptGenerator
-import com.example.techhourse.OpenAIApiClient
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.TimeoutCancellationException
-import android.util.Log
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class CompareActivity : AppCompatActivity() {
     
     private lateinit var tvPhone1: TextView
     private lateinit var tvPhone2: TextView
-    private lateinit var llCompareContent: LinearLayout
-    private lateinit var svCompareResult: ScrollView
-    private lateinit var btnAiAnalysis: Button
     private lateinit var database: AppDatabase
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
     private var allPhones: List<PhoneEntity> = emptyList()
     private var selectedPhone1: PhoneEntity? = null
     private var selectedPhone2: PhoneEntity? = null
-    private lateinit var openAIClient: OpenAIApiClient
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +37,6 @@ class CompareActivity : AppCompatActivity() {
         
         initViews()
         initDatabase()
-        initOpenAIClient()
         setupClickListeners()
         loadPhoneData()
     }
@@ -49,9 +44,8 @@ class CompareActivity : AppCompatActivity() {
     private fun initViews() {
         tvPhone1 = findViewById(R.id.tv_phone_1_name)
         tvPhone2 = findViewById(R.id.tv_phone_2_name)
-        llCompareContent = findViewById(R.id.ll_compare_content)
-        svCompareResult = findViewById(R.id.sv_compare_result)
-        btnAiAnalysis = findViewById(R.id.btn_ai_analysis)
+        tabLayout = findViewById(R.id.tab_layout)
+        viewPager = findViewById(R.id.view_pager)
         
         // 设置点击监听器将在setupClickListeners中处理
     }
@@ -60,9 +54,7 @@ class CompareActivity : AppCompatActivity() {
         database = AppDatabase.getDatabase(this)
     }
     
-    private fun initOpenAIClient() {
-        openAIClient = OpenAIApiClient.getInstance()
-    }
+
     
     private fun setupClickListeners() {
         val llPhone1Selector = findViewById<LinearLayout>(R.id.ll_phone_1_selector)
@@ -76,10 +68,7 @@ class CompareActivity : AppCompatActivity() {
             showPhoneSelector(2)
         }
         
-        // AI分析按钮点击事件
-        btnAiAnalysis.setOnClickListener {
-            performAiAnalysis()
-        }
+
     }
     
     private fun loadPhoneData() {
@@ -98,7 +87,9 @@ class CompareActivity : AppCompatActivity() {
 
         // 设置RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = PhoneSimpleAdapter(allPhones) { selectedPhone ->
+        // 将手机列表随机打乱
+        val shuffledPhones = allPhones.shuffled()
+        val adapter = PhoneSimpleAdapter(shuffledPhones) { selectedPhone ->
             onPhoneSelected(phonePosition, selectedPhone)
             bottomSheetDialog.dismiss()
         }
@@ -110,7 +101,7 @@ class CompareActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().trim()
-                adapter.filterPhones(allPhones, query)
+                adapter.filterPhones(shuffledPhones, query)
             }
         })
         
@@ -176,8 +167,9 @@ class CompareActivity : AppCompatActivity() {
     }
     
     private fun showCompareResult() {
-        llCompareContent.removeAllViews()
-        svCompareResult.visibility = View.VISIBLE
+        // 显示比较结果区域
+        val llCompareResult = findViewById<LinearLayout>(R.id.ll_compare_result)
+        llCompareResult.visibility = View.VISIBLE
         
         // 隐藏提示文本
         val tvHint = findViewById<TextView>(R.id.tv_hint)
@@ -186,128 +178,70 @@ class CompareActivity : AppCompatActivity() {
         val phone1 = selectedPhone1!!
         val phone2 = selectedPhone2!!
         
-        // 创建比较结果视图
-        val compareView = layoutInflater.inflate(R.layout.layout_compare_result, llCompareContent, false)
+        // 创建CompareData实例
+        val compareData = CompareData(
+            phone1Id = phone1.id.toString(),
+            phone1Model = phone1.phoneModel,
+            phone1Price = phone1.price,
+            phone1Memory = phone1.memoryConfig,
+            phone1FrontCamera = phone1.frontCamera,
+            phone1RearCamera = phone1.rearCamera,
+            phone1Resolution = phone1.resolution,
+            phone1ScreenSize = phone1.screenSize,
+            phone1SellingPoint = phone1.sellingPoint,
+            
+            phone2Id = phone2.id.toString(),
+            phone2Model = phone2.phoneModel,
+            phone2Price = phone2.price,
+            phone2Memory = phone2.memoryConfig,
+            phone2FrontCamera = phone2.frontCamera,
+            phone2RearCamera = phone2.rearCamera,
+            phone2Resolution = phone2.resolution,
+            phone2ScreenSize = phone2.screenSize,
+            phone2SellingPoint = phone2.sellingPoint
+        )
         
-        // 填充比较数据（这里可以根据需要添加更多比较项）
-        val tvPhone1Price = compareView.findViewById<TextView>(R.id.tv_phone1_price)
-        val tvPhone2Price = compareView.findViewById<TextView>(R.id.tv_phone2_price)
-        val tvPhone1Memory = compareView.findViewById<TextView>(R.id.tv_phone1_memory)
-        val tvPhone2Memory = compareView.findViewById<TextView>(R.id.tv_phone2_memory)
-
-        tvPhone1Price.text = phone1.price
-        tvPhone2Price.text = phone2.price
-        tvPhone1Memory.text = phone1.memoryConfig
-        tvPhone2Memory.text = phone2.memoryConfig
+        // 设置ViewPager2适配器
+        val adapter = CompareFragmentAdapter(this, compareData)
+        viewPager.adapter = adapter
         
-        // 设置前置摄像头对比
-        compareView.findViewById<TextView>(R.id.tv_phone1_front_camera).text = phone1.frontCamera ?: "未知"
-        compareView.findViewById<TextView>(R.id.tv_phone2_front_camera).text = phone2.frontCamera ?: "未知"
+        // 配置TabLayout与ViewPager2的联动
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "基本参数"
+                1 -> "综合对比"
+                2 -> "差异对比"
+                else -> "Tab ${position + 1}"
+            }
+        }.attach()
         
-        // 设置后置摄像头对比
-        compareView.findViewById<TextView>(R.id.tv_phone1_rear_camera).text = phone1.rearCamera ?: "未知"
-        compareView.findViewById<TextView>(R.id.tv_phone2_rear_camera).text = phone2.rearCamera ?: "未知"
-        
-        // 设置屏幕分辨率对比
-        compareView.findViewById<TextView>(R.id.tv_phone1_screen_resolution).text = phone1.resolution ?: "未知"
-        compareView.findViewById<TextView>(R.id.tv_phone2_screen_resolution).text = phone2.resolution ?: "未知"
-        
-        // 设置屏幕尺寸对比
-        compareView.findViewById<TextView>(R.id.tv_phone1_screen_size).text = phone1.screenSize ?: "未知"
-        compareView.findViewById<TextView>(R.id.tv_phone2_screen_size).text = phone2.screenSize ?: "未知"
-        
-        // 设置卖点对比
-        compareView.findViewById<TextView>(R.id.tv_phone1_selling_point).text = phone1.sellingPoint ?: "未知"
-        compareView.findViewById<TextView>(R.id.tv_phone2_selling_point).text = phone2.sellingPoint ?: "未知"
-        
-        llCompareContent.addView(compareView)
-        
-        // 显示AI分析按钮
-        btnAiAnalysis.visibility = View.VISIBLE
+        // 添加TabLayout点击监听器
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                // 当点击综合对比标签时触发AI分析
+                if (tab?.position == 1) {
+                    triggerAiAnalysisForComprehensive()
+                }
+            }
+            
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // 重新点击综合对比标签时也触发AI分析
+                if (tab?.position == 1) {
+                    triggerAiAnalysisForComprehensive()
+                }
+            }
+        })
     }
     
-    private fun performAiAnalysis() {
-        val phone1 = selectedPhone1
-        val phone2 = selectedPhone2
-        
-        if (phone1 == null || phone2 == null) {
-            SnackbarUtils.showSnackbar(this, "请先选择两部手机进行比较")
-            return
-        }
-        
-        // 显示加载提示
-        SnackbarUtils.showNormalSnackbar(this, "正在进行AI智能分析，请稍候...")
-        
-        // 异步调用OpenAI接口
-        lifecycleScope.launch {
-            try {
-                // 将手机详细信息添加到系统提示词中
-                val systemPrompt = ""
-                
-                // 用户查询保持简洁
-                val userQuery = "给出购买建议"
-
-//                val userQuery = "请对以下两款手机进行详细的对比分析"
-                Log.d("CompareActivity", "用户查询: $userQuery")
-                Log.d("CompareActivity", "开始AI分析...")
-                Log.d("CompareActivity", "OpenAI客户端实例: ${openAIClient.javaClass.simpleName}")
-                Log.d("CompareActivity", "API密钥配置状态: ${OpenAIApiClient.isApiKeyConfigured()}")
-                
-                // 设置20秒超时
-                val aiResponse = withTimeout(20000L) {
-                    openAIClient.chatCompletion(userQuery, systemPrompt)
-                }
-                
-                Log.d("CompareActivity", "AI分析结果: $aiResponse")
-                
-                // 检查响应是否为错误信息
-                if (aiResponse.contains("网络连接超时") || 
-                    aiResponse.contains("无法连接到服务器") || 
-                    aiResponse.contains("API密钥无效") || 
-                    aiResponse.contains("请求失败") ||
-                    aiResponse.contains("请求过于频繁")) {
-                    // 这是一个错误响应
-                    showAiAnalysisResult("AI分析遇到问题：$aiResponse")
-                } else {
-                    // 正常的AI分析结果
-                    showAiAnalysisResult(aiResponse)
-                }
-                
-            } catch (e: TimeoutCancellationException) {
-                // 超时处理
-                Log.e("CompareActivity", "AI分析超时", e)
-                showAiAnalysisResult("AI分析响应超时，请稍后重试")
-                
-            } catch (e: Exception) {
-                // 其他错误处理
-                Log.e("CompareActivity", "AI分析出错", e)
-                val errorMsg = when {
-                    e.message?.contains("API key") == true || e.message?.contains("API密钥") == true -> "请先配置AI API密钥"
-                    e.message?.contains("网络") == true || e.message?.contains("连接") == true || e.message?.contains("超时") == true -> "网络连接错误，请检查网络设置"
-                    else -> "AI分析出现错误：${e.message}"
-                }
-                showAiAnalysisResult(errorMsg)
+    private fun triggerAiAnalysisForComprehensive() {
+        // 获取当前ViewPager中的Fragment
+        val adapter = viewPager.adapter as? CompareFragmentAdapter
+        adapter?.let {
+            val fragment = it.getFragment(1) // 获取综合对比Fragment（位置1）
+            if (fragment is CompareComprehensiveFragment) {
+                fragment.performAiAnalysis()
             }
         }
-    }
-    
-    /**
-     * 显示AI分析结果的底部弹窗
-     */
-    private fun showAiAnalysisResult(analysisResult: String) {
-        val bottomSheetDialog = BottomSheetDialog(this)
-        val dialogView = layoutInflater.inflate(R.layout.bottom_dialog_layout, null)
-        
-        // 设置标题和内容
-        dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "AI智能分析结果"
-        dialogView.findViewById<TextView>(R.id.tv_dialog_content).text = analysisResult
-        
-        // 设置关闭按钮点击事件
-        dialogView.findViewById<ImageView>(R.id.btn_close).setOnClickListener {
-            bottomSheetDialog.dismiss()
-        }
-        
-        bottomSheetDialog.setContentView(dialogView)
-        bottomSheetDialog.show()
     }
 }

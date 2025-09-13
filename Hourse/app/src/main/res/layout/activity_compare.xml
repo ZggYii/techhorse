@@ -9,24 +9,15 @@
     android:padding="16dp">
 
     <!-- 标题栏 -->
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingBottom="20dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="机型比较"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:gravity="center" />
-
-    </LinearLayout>
+        android:text="机型比较"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginTop="20dp"
+        android:gravity="center"/>
 
     <!-- 手机选择区域 -->
     <LinearLayout
@@ -34,14 +25,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="25dp"
         android:layout_marginBottom="10dp">
 
         <!-- 第一个手机选择框 -->
         <LinearLayout
             android:id="@+id/ll_phone_1_selector"
             android:layout_width="0dp"
-            android:layout_height="180dp"
+            android:layout_height="200dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:orientation="vertical"
@@ -53,8 +44,8 @@
 
             <ImageView
                 android:id="@+id/iv_phone_1_image"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:src="@drawable/ic_add"
                 android:layout_marginBottom="12dp"
                 android:scaleType="centerCrop"
@@ -67,7 +58,8 @@
                 android:text="compare to"
                 android:textSize="14sp"
                 android:textColor="#666666"
-                android:gravity="center" />
+                android:gravity="center"
+                android:textStyle="italic|bold"/>
 
         </LinearLayout>
 
@@ -75,7 +67,7 @@
         <LinearLayout
             android:id="@+id/ll_phone_2_selector"
             android:layout_width="0dp"
-            android:layout_height="180dp"
+            android:layout_height="200dp"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:orientation="vertical"
@@ -87,8 +79,8 @@
 
             <ImageView
                 android:id="@+id/iv_phone_2_image"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:src="@drawable/ic_add"
                 android:layout_marginBottom="12dp"
                 android:scaleType="centerCrop"
@@ -101,7 +93,8 @@
                 android:text="compare with"
                 android:textSize="14sp"
                 android:textColor="#666666"
-                android:gravity="center" />
+                android:gravity="center"
+                android:textStyle="bold|italic"/>
 
         </LinearLayout>
 
@@ -113,49 +106,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="请选择两款手机进行比较"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textColor="#999999"
         android:gravity="center"
-        android:layout_marginTop="40dp" />
+        android:textStyle="italic"
+        android:layout_marginTop="15dp" />
 
     <!-- 比较结果区域 -->
-    <ScrollView
-        android:id="@+id/sv_compare_result"
+    <LinearLayout
+        android:id="@+id/ll_compare_result"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:visibility="gone"
         android:layout_marginTop="10dp">
 
-        <LinearLayout
+        <!-- TabLayout -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@android:color/white"
+            app:tabMode="fixed"
+            app:tabGravity="fill"
+            app:tabTextColor="#666666"
+            app:tabSelectedTextColor="#B19CD9"
+            app:tabIndicatorColor="#B19CD9"
+            app:tabIndicatorHeight="3dp"
+            android:layout_marginBottom="10dp" />
 
-            <LinearLayout
-                android:id="@+id/ll_compare_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
+        <!-- ViewPager2 -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <!-- AI分析按钮 -->
-            <Button
-                android:id="@+id/btn_ai_analysis"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="AI智能分析"
-                android:textSize="13sp"
-                android:textColor="@color/white"
-                android:background="@drawable/selector_card_background"
-                android:backgroundTint="#2196F3"
-                android:padding="12dp"
-                android:drawableStart="@drawable/ic_add"
-                android:drawablePadding="8dp"
-                android:gravity="center"
-                android:visibility="gone" />
 
-        </LinearLayout>
 
-    </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>

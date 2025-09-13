@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.example.techhourse.database.entity.PhoneEntity
 import com.example.techhourse.PhoneCard
 
@@ -17,12 +20,12 @@ class PhoneDetailActivity : AppCompatActivity() {
     private lateinit var phoneDetailImage: ImageView
     private lateinit var phoneDetailName: TextView
     private lateinit var phoneDetailPrice: TextView
-    private lateinit var memoryConfig: TextView
-    private lateinit var screenSize: TextView
-    private lateinit var resolution: TextView
-    private lateinit var frontCamera: TextView
-    private lateinit var rearCamera: TextView
-    private lateinit var sellingPoint: TextView
+
+    
+    // 新增的TabLayout和ViewPager2组件
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
+    private lateinit var pagerAdapter: PhoneDetailPagerAdapter
     
     companion object {
         const val EXTRA_PHONE_ID = "phone_id"
@@ -54,12 +57,11 @@ class PhoneDetailActivity : AppCompatActivity() {
         phoneDetailImage = findViewById(R.id.iv_phone_detail_image)
         phoneDetailName = findViewById(R.id.tv_phone_detail_name)
         phoneDetailPrice = findViewById(R.id.tv_phone_detail_price)
-        memoryConfig = findViewById(R.id.tv_memory_config)
-        screenSize = findViewById(R.id.tv_screen_size)
-        resolution = findViewById(R.id.tv_resolution)
-        frontCamera = findViewById(R.id.tv_front_camera)
-        rearCamera = findViewById(R.id.tv_rear_camera)
-        sellingPoint = findViewById(R.id.tv_selling_point)
+
+        
+        // 初始化TabLayout和ViewPager2
+        tabLayout = findViewById(R.id.tab_layout)
+        viewPager = findViewById(R.id.view_pager)
     }
     
     private fun loadPhoneData() {
@@ -98,23 +100,42 @@ class PhoneDetailActivity : AppCompatActivity() {
             "价格待定"
         }
         
-        // 设置内存配置
-        memoryConfig.text = if (memoryConfigStr.isNotEmpty()) memoryConfigStr else "配置信息暂无"
+
         
-        // 设置屏幕尺寸
-        screenSize.text = if (screenSizeStr.isNotEmpty()) screenSizeStr else "屏幕信息暂无"
+        // 设置ViewPager2适配器
+        // 解析RAM和ROM
+        val memoryParts = memoryConfigStr.split("+")
+        val ram = if (memoryParts.isNotEmpty()) memoryParts[0].trim() else memoryConfigStr
+        val rom = if (memoryParts.size > 1) memoryParts[1].trim() else ""
         
-        // 设置分辨率
-        resolution.text = if (resolutionStr.isNotEmpty()) resolutionStr else "分辨率信息暂无"
+        val phoneData = PhoneData(
+            id = phoneId,
+            name = phoneModel,
+            price = priceStr,
+            ram = ram,
+            rom = rom,
+            screenSize = screenSizeStr,
+            screenResolution = resolutionStr,
+            frontCamera = frontCameraStr,
+            rearCamera = rearCameraStr,
+            sellingPoint = sellingPointStr,
+            imageResourceId = imageResourceId
+        )
         
-        // 设置前摄
-        frontCamera.text = if (frontCameraStr.isNotEmpty()) frontCameraStr else "前摄信息暂无"
+        // 获取对比手机数据（如果有的话）
+        val comparePhoneData = intent.getSerializableExtra("compare_phone_data") as? PhoneData
         
-        // 设置后摄
-        rearCamera.text = if (rearCameraStr.isNotEmpty()) rearCameraStr else "后摄信息暂无"
+        pagerAdapter = PhoneDetailPagerAdapter(this, phoneData, comparePhoneData)
+        viewPager.adapter = pagerAdapter
         
-        // 设置卖点
-        sellingPoint.text = if (sellingPointStr.isNotEmpty()) sellingPointStr else "暂无卖点信息"
+        // 设置TabLayout和ViewPager2的联动
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "基本参数"
+                1 -> "综合对比"
+                else -> ""
+            }
+        }.attach()
         
         // 发送广播到MainActivity添加到历史记录
         sendHistoryBroadcast(phoneId, phoneModel, priceStr, imageResourceId)
