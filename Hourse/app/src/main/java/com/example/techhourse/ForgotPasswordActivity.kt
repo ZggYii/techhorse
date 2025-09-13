@@ -13,13 +13,15 @@ import com.example.techhourse.utils.RoomUserDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.text.TextWatcher
+import android.text.Editable
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
     private lateinit var etPhoneNumber: EditText
     private lateinit var tvSecurityQuestion: TextView
     private lateinit var etSecurityAnswer: EditText
-    private lateinit var btnConfirm: Button
+    private lateinit var btnConfirm: androidx.appcompat.widget.AppCompatButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +29,12 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         initViews()
         setupListeners()
+        
+        // 接收从登录界面传递过来的手机号
+        val phoneNumber = intent.getStringExtra("phone_number")
+        if (!phoneNumber.isNullOrEmpty()) {
+            etPhoneNumber.setText(phoneNumber)
+        }
     }
 
     private fun initViews() {
@@ -43,21 +51,34 @@ class ForgotPasswordActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        // 手机号输入框监听器 - 当手机号输入完成后自动获取密保问题
+        etPhoneNumber.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            
+            override fun afterTextChanged(s: Editable?) {
+                val phoneNumber = s.toString().trim()
+                if (phoneNumber.length == 11 && isValidPhoneNumber(phoneNumber)) {
+                    // 手机号输入完成且格式正确，获取密保问题
+                    loadSecurityQuestion(phoneNumber)
+                } else {
+                    // 清空密保问题显示
+                    tvSecurityQuestion.text = "请先输入手机号码获取密保问题"
+                }
+            }
+        })
+        
         // 确认按钮点击事件
         btnConfirm.setOnClickListener {
             validateAndSubmit()
-        }
-
-        // 帮助按钮点击事件
-        val tvHelp = findViewById<TextView>(R.id.tv_help)
-        tvHelp.setOnClickListener {
-            SnackbarUtils.showNormalSnackbar(this, "帮助")
         }
     }
 
     private fun validateAndSubmit() {
         val phoneNumber = etPhoneNumber.text.toString()
         val securityAnswer = etSecurityAnswer.text.toString()
+        val currentQuestion = tvSecurityQuestion.text.toString()
 
         // 验证手机号
         if (phoneNumber.isEmpty()) {
@@ -67,6 +88,16 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
         if (!isValidPhoneNumber(phoneNumber)) {
             SnackbarUtils.showNormalSnackbar(this, "请输入正确的手机号")
+            return
+        }
+        
+        // 检查密保问题是否已加载
+        if (currentQuestion == "请先输入手机号码获取密保问题" || currentQuestion == "该手机号未注册") {
+            if (currentQuestion == "请先输入手机号码获取密保问题") {
+                SnackbarUtils.showNormalSnackbar(this, "请先输入正确的手机号")
+            } else {
+                SnackbarUtils.showNormalSnackbar(this, currentQuestion)
+            }
             return
         }
 
@@ -80,21 +111,27 @@ class ForgotPasswordActivity : AppCompatActivity() {
         verifySecurityAnswer(phoneNumber, securityAnswer)
     }
     
+    /**
+     * 加载密保问题
+     */
+    private fun loadSecurityQuestion(phoneNumber: String) {
+        val roomUserDatabase = RoomUserDatabase(this)
+        
+        CoroutineScope(Dispatchers.Main).launch {
+            val securityQuestion = roomUserDatabase.getSecurityQuestion(phoneNumber)
+            
+            if (securityQuestion != null) {
+                tvSecurityQuestion.text = securityQuestion
+            } else {
+                tvSecurityQuestion.text = "该手机号未注册"
+            }
+        }
+    }
+    
     private fun verifySecurityAnswer(phoneNumber: String, answer: String) {
         val roomUserDatabase = RoomUserDatabase(this)
         
         CoroutineScope(Dispatchers.Main).launch {
-            // 首先检查用户是否存在并获取密保问题
-            val securityQuestion = roomUserDatabase.getSecurityQuestion(phoneNumber)
-            
-            if (securityQuestion == null) {
-                showVerificationFailureDialog("该手机号未注册")
-                return@launch
-            }
-            
-            // 更新密保问题显示
-            tvSecurityQuestion.text = securityQuestion
-            
             // 验证密保答案
             val isValid = roomUserDatabase.verifySecurityAnswer(phoneNumber, answer)
             

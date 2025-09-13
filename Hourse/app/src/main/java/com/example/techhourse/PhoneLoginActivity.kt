@@ -68,6 +68,11 @@ class PhoneLoginActivity : AppCompatActivity() {
         // 忘记密码点击事件
         tvForgotPassword.setOnClickListener {
             val intent = Intent(this, ForgotPasswordActivity::class.java)
+            // 如果手机号输入框有内容，携带到忘记密码界面
+            val phoneNumber = etPhoneNumber.text.toString().trim()
+            if (phoneNumber.isNotEmpty()) {
+                intent.putExtra("phone_number", phoneNumber)
+            }
             startActivity(intent)
         }
 

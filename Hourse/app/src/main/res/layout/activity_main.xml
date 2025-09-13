@@ -17,7 +17,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:gravity="bottom"
         app:layout_constraintBottom_toTopOf="@+id/search_container"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="主页"
+            android:gravity="bottom"
             android:textStyle="bold"
             android:textSize="44sp"
             android:textColor="@color/black" />
@@ -36,13 +37,12 @@
             android:id="@+id/user_avatar"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@mipmap/aacount"
-            android:layout_gravity="center_vertical"
-            android:scaleType="centerInside"
-            android:layout_marginEnd="15dp"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="5dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground" />
+            android:scaleType="centerInside"
+            android:src="@mipmap/aacount" />
 
     </LinearLayout>
 
@@ -160,8 +160,8 @@
 
             <ImageView
                 android:id="@+id/iv_home"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
                 android:src="@drawable/ic_home"
                 android:contentDescription="首页" />
 
@@ -169,8 +169,7 @@
                 android:id="@+id/tv_home"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="首页"
+                android:text="主页"
                 android:textColor="@color/black"
                 android:textSize="12sp" />
 
@@ -191,8 +190,8 @@
 
             <ImageView
                 android:id="@+id/iv_chat"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_chat"
                 android:contentDescription="聊天" />
 
@@ -222,8 +221,8 @@
 
             <ImageView
                 android:id="@+id/iv_compare"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:src="@drawable/ic_compare"
                 android:contentDescription="机型比较" />
 
@@ -232,7 +231,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="机型比较"
+                android:text="对比"
                 android:textColor="@color/gray"
                 android:textSize="12sp" />
 

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.example.techhourse.utils.SnackbarUtils
 import com.example.techhourse.utils.RoomUserDatabase
+import com.example.techhourse.utils.DatabaseDebugHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -183,7 +184,9 @@ class RegisterActivity : AppCompatActivity() {
             val registrationSuccess = roomUserDatabase.registerUser(phoneNumber, password, securityQuestion, securityAnswer)
             
             if (registrationSuccess) {
-                // 注册成功
+                // 注册成功，打印调试信息
+                DatabaseDebugHelper.printAllUsers(this@RegisterActivity)
+                DatabaseDebugHelper.checkPhoneNumber(this@RegisterActivity, phoneNumber)
                 showSuccessDialog()
             } else {
                 // 注册失败 - 手机号已被注册

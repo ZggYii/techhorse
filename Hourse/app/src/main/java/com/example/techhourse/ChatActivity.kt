@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.TimeoutCancellationException
 import com.example.techhourse.OpenAIApiClient
+import com.example.techhourse.utils.RoomUserDatabase
 
 class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     
@@ -75,6 +77,9 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         
         // 设置NavigationView监听器
         navigationView.setNavigationItemSelectedListener(this)
+        
+        // 设置侧滑界面用户名
+        setupNavigationHeader()
     }
     
     private fun initChatComponents() {
@@ -102,13 +107,81 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         isChatStarted = true
     }
     
+    private fun setupNavigationHeader() {
+        val headerView = navigationView.getHeaderView(0)
+        val tvUserName = headerView.findViewById<TextView>(R.id.tv_user_name)
+        
+        lifecycleScope.launch {
+            val roomUserDatabase = RoomUserDatabase.getInstance(this@ChatActivity)
+            val currentUser = roomUserDatabase.getCurrentUser()
+            
+            if (currentUser != null && currentUser.phoneNumber.isNotEmpty()) {
+                // 脱敏处理：4-7位用*号显示
+                val phoneNumber = currentUser.phoneNumber
+                val maskedPhone = if (phoneNumber.length >= 7) {
+                    phoneNumber.substring(0, 3) + "****" + phoneNumber.substring(7)
+                } else {
+                    phoneNumber
+                }
+                tvUserName.text = maskedPhone
+            } else {
+                tvUserName.text = "zggyii"
+            }
+        }
+    }
+    
     private fun startNewChat() {
-         messages.clear()
-         chatAdapter.notifyDataSetChanged()
-         showWelcomeScreen()
-         etQuery.text.clear()
-         SnackbarUtils.showNormalSnackbar(this, "已开始新对话")
-     }
+          messages.clear()
+          chatAdapter.notifyDataSetChanged()
+          showWelcomeScreen()
+          etQuery.text.clear()
+          SnackbarUtils.showNormalSnackbar(this, "已开始新对话")
+      }
+      
+      private fun checkLoginAndSendMessage(query: String) {
+          lifecycleScope.launch {
+              val roomUserDatabase = RoomUserDatabase.getInstance(this@ChatActivity)
+              val currentUser = roomUserDatabase.getCurrentUser()
+              
+              if (currentUser == null) {
+                  // 未登录，显示提示框
+                  showLoginRequiredDialog()
+              } else {
+                  // 已登录，直接发送消息
+                  sendMessage(query)
+              }
+          }
+      }
+      
+      private fun showLoginRequiredDialog() {
+           val bottomSheetDialog = BottomSheetDialog(this)
+           val dialogView = layoutInflater.inflate(R.layout.bottom_dialog_layout, null)
+           
+           // 设置标题和内容
+           dialogView.findViewById<TextView>(R.id.tv_dialog_title).text = "登录提示"
+           dialogView.findViewById<TextView>(R.id.tv_dialog_content).text = "请先登录才能使用聊天功能"
+           
+           // 设置关闭按钮点击事件
+           dialogView.findViewById<ImageView>(R.id.btn_close).setOnClickListener {
+               bottomSheetDialog.dismiss()
+           }
+           
+           // 设置取消按钮点击事件
+           dialogView.findViewById<Button>(R.id.btn_cancel).setOnClickListener {
+               bottomSheetDialog.dismiss()
+           }
+           
+           // 设置确认按钮点击事件（跳转登录）
+           dialogView.findViewById<Button>(R.id.btn_confirm).setOnClickListener {
+               bottomSheetDialog.dismiss()
+               // 跳转到登录页面
+               val intent = Intent(this, PhoneLoginActivity::class.java)
+               startActivity(intent)
+           }
+           
+           bottomSheetDialog.setContentView(dialogView)
+           bottomSheetDialog.show()
+       }
      
      private fun sendMessage(messageText: String) {
          // 如果是第一次发送消息，切换到聊天界面
@@ -184,6 +257,16 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             drawerLayout.openDrawer(GravityCompat.START)
         }
         
+        // 添加DrawerLayout监听器，每次打开侧滑菜单时刷新用户名
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerOpened(drawerView: View) {
+                setupNavigationHeader()
+            }
+            override fun onDrawerClosed(drawerView: View) {}
+            override fun onDrawerStateChanged(newState: Int) {}
+        })
+        
         // 新建对话按钮点击事件
         btnNewChat.setOnClickListener {
             // 新建对话逻辑
@@ -194,7 +277,7 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         btnSend.setOnClickListener {
             val query = etQuery.text.toString().trim()
             if (query.isNotEmpty()) {
-                sendMessage(query)
+                checkLoginAndSendMessage(query)
             }
         }
         
@@ -202,7 +285,7 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         etQuery.setOnEditorActionListener { _, _, _ ->
             val query = etQuery.text.toString().trim()
             if (query.isNotEmpty()) {
-                sendMessage(query)
+                checkLoginAndSendMessage(query)
             }
             true
         }
@@ -264,6 +347,27 @@ class ChatActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "客户服务：\n热线：800-123-4567\n在线客服：工作日 9:00-21:00\n邮箱：service@nextphone.com\n地址：深圳市南山区"
         )
         return contactInfos.random()
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // 离开Activity时清除对话框内容
+        clearChatContent()
+    }
+    
+    private fun clearChatContent() {
+        // 清空输入框
+        etQuery.text.clear()
+        
+        // 清空聊天记录
+        messages.clear()
+        chatAdapter.notifyDataSetChanged()
+        
+        // 重置聊天状态
+        isChatStarted = false
+        
+        // 显示欢迎界面
+        showWelcomeScreen()
     }
     
     override fun onBackPressed() {

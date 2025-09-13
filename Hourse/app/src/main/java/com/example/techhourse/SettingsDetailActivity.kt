@@ -13,6 +13,9 @@ import com.example.techhourse.utils.SnackbarUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.view.LayoutInflater
+import android.view.View
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class SettingsDetailActivity : AppCompatActivity() {
 
@@ -70,8 +73,15 @@ class SettingsDetailActivity : AppCompatActivity() {
         // 设置手机号点击事件
         val phoneLayout = findViewById<LinearLayout>(R.id.ll_phone)
         phoneLayout.setOnClickListener {
-            val intent = Intent(this, PhoneLoginActivity::class.java)
-            startActivity(intent)
+            CoroutineScope(Dispatchers.Main).launch {
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser == null) {
+                    // 只有在未登录状态下才跳转到登录页面
+                    val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                    startActivity(intent)
+                }
+                // 如果已登录，则不执行任何操作
+            }
         }
         
         // 设置密码设置项点击事件
@@ -113,10 +123,26 @@ class SettingsDetailActivity : AppCompatActivity() {
         val switchCountButton = findViewById<Button>(R.id.switchCount)
         switchCountButton.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-                roomUserDatabase.logout()
-                val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser != null) {
+                    // 有登录用户，弹出确认对话框
+                    showBottomConfirmDialog(
+                        title = "切换账户",
+                        message = "确定要切换到其他账户吗？",
+                        onConfirm = {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                roomUserDatabase.logout()
+                                val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                    )
+                } else {
+                    // 没有登录用户，直接跳转到登录界面
+                    val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                    startActivity(intent)
+                }
             }
         }
 
@@ -124,10 +150,26 @@ class SettingsDetailActivity : AppCompatActivity() {
         val logoutButton = findViewById<Button>(R.id.logout)
         logoutButton.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
-                roomUserDatabase.logout()
-                val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser != null) {
+                    // 有登录用户，弹出确认对话框
+                    showBottomConfirmDialog(
+                        title = "退出登录",
+                        message = "确定要退出当前账户吗？",
+                        onConfirm = {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                roomUserDatabase.logout()
+                                val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                    )
+                } else {
+                    // 没有登录用户，直接跳转到登录界面
+                    val intent = Intent(this@SettingsDetailActivity, PhoneLoginActivity::class.java)
+                    startActivity(intent)
+                }
             }
         }
     }
@@ -144,5 +186,39 @@ class SettingsDetailActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+    
+    /**
+     * 显示底部确认对话框
+     */
+    private fun showBottomConfirmDialog(
+        title: String,
+        message: String,
+        onConfirm: () -> Unit
+    ) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_bottom_confirm, null)
+        
+        // 设置对话框内容
+        val titleTextView = dialogView.findViewById<TextView>(R.id.tv_dialog_title)
+        val messageTextView = dialogView.findViewById<TextView>(R.id.tv_dialog_message)
+        val cancelButton = dialogView.findViewById<Button>(R.id.btn_cancel)
+        val confirmButton = dialogView.findViewById<Button>(R.id.btn_confirm)
+        
+        titleTextView.text = title
+        messageTextView.text = message
+        
+        // 设置按钮点击事件
+        cancelButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+        
+        confirmButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            onConfirm()
+        }
+        
+        bottomSheetDialog.setContentView(dialogView)
+        bottomSheetDialog.show()
     }
 }

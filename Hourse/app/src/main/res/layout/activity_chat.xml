@@ -42,7 +42,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="新对话"
-                    android:textColor="@color/black"
+                    android:textColor="#4A5568"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -90,6 +90,7 @@
                     android:layout_marginBottom="32dp"
                     android:text="Enter your prompt to ask me"
                     android:textColor="@color/gray"
+                    android:textStyle="italic"
                     android:textSize="16sp" />
 
             </LinearLayout>

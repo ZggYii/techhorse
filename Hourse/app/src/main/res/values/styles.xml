@@ -8,4 +8,9 @@
         <item name="android:letterSpacing">0.02</item>
         <!-- 移除阴影效果，白色文字在紫色背景上无需阴影 -->
     </style>
+
+    <!-- 底部横线输入框样式 -->
+    <style name="UnderlineEditText">
+        <item name="android:background">@drawable/underline_edittext_background</item>
+    </style>
 </resources>

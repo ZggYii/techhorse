@@ -4,9 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -24,9 +26,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.example.techhourse.database.AppDatabase
 import com.example.techhourse.database.DatabaseInitializer
 import com.example.techhourse.PhoneUsageInfoManager
-import com.example.techhourse.utils.UserBehaviorProcessor
-import com.example.techhourse.utils.SnackbarUtils
 import com.example.techhourse.utils.RoomUserDatabase
+import com.example.techhourse.utils.SnackbarUtils
+import com.example.techhourse.utils.UserBehaviorProcessor
+import com.example.techhourse.utils.DatabaseDebugHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,6 +75,8 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_PHONE_NAME = "phone_name"
         const val EXTRA_PHONE_PRICE = "phone_price"
         const val EXTRA_PHONE_IMAGE_RESOURCE = "phone_image_resource"
+        private const val PREFS_NAME = "app_prefs"
+        private const val KEY_FIRST_LAUNCH = "is_first_launch"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,9 +120,16 @@ class MainActivity : AppCompatActivity() {
                             showPermissionDialog()
                         }, 500) // 延迟0.5秒显示
                     } else {
-                        // 用户行为表已有数据，不显示权限对话框
-                        // 可以在这里添加一些提示信息
-                        SnackbarUtils.showSnackbar(this@MainActivity, "欢迎回来！数据已加载完成")
+                        // 用户行为表已有数据，检查是否是首次启动
+                        val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                        val isFirstLaunch = sharedPrefs.getBoolean(KEY_FIRST_LAUNCH, true)
+                        
+                        if (isFirstLaunch) {
+                            // 首次启动，显示欢迎提示并标记为已启动
+                            SnackbarUtils.showSnackbar(this@MainActivity, "欢迎回来！数据已加载完成")
+                            sharedPrefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
+                        }
+                        // 非首次启动，不显示提示
                     }
                 }
 
@@ -256,11 +268,15 @@ class MainActivity : AppCompatActivity() {
         val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_user_profile, null)
         bottomSheetDialog.setContentView(bottomSheetView)
         
-        // 获取当前用户信息并显示手机号
+        // 获取当前用户信息并显示手机号和密码状态
         val roomUserDatabase = RoomUserDatabase(this)
         val phoneNumInfo = bottomSheetView.findViewById<TextView>(R.id.phoneNum_info)
+        val passwordStatus = bottomSheetView.findViewById<TextView>(R.id.passw_set)
         
         CoroutineScope(Dispatchers.Main).launch {
+            // 添加调试信息，查看数据库中的所有用户
+            DatabaseDebugHelper.printAllUsers(this@MainActivity)
+            
             val currentUser = roomUserDatabase.getCurrentUser()
             if (currentUser != null) {
                 // 隐私处理：4-7位显示为*号
@@ -271,22 +287,53 @@ class MainActivity : AppCompatActivity() {
                     phoneNumber // 如果手机号长度不足7位，直接显示
                 }
                 phoneNumInfo?.text = maskedPhone
+                
+                // 检查密码状态
+                if (currentUser.password.isNotEmpty()) {
+                    passwordStatus?.text = "已设置"
+                } else {
+                    passwordStatus?.text = "未设置"
+                }
             } else {
                 phoneNumInfo?.text = "未登录"
+                passwordStatus?.text = "未设置"
             }
         }
         
         // 设置底部弹出框的点击事件
         bottomSheetView.findViewById<LinearLayout>(R.id.ll_phone)?.setOnClickListener {
-            // 处理手机号点击事件
             bottomSheetDialog.dismiss()
-            // 可以跳转到手机号绑定页面
+            CoroutineScope(Dispatchers.Main).launch {
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser == null) {
+                    // 只有在未登录状态下才跳转到登录页面
+                    val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                    startActivity(intent)
+                }
+                // 如果已登录，则不执行任何操作
+            }
         }
         
         bottomSheetView.findViewById<LinearLayout>(R.id.ll_passw)?.setOnClickListener {
-            // 处理密码点击事件
             bottomSheetDialog.dismiss()
-            // 可以跳转到密码设置页面
+            CoroutineScope(Dispatchers.Main).launch {
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser != null) {
+                    // 检查密码是否已经设置
+                    if (currentUser.password.isNotEmpty()) {
+                        // 密码已设置，跳转到修改密码界面
+                        val intent = Intent(this@MainActivity, ModifyPasswordActivity::class.java)
+                        startActivity(intent)
+                    } else {
+                        // 密码未设置，跳转到设置密码界面
+                        val intent = Intent(this@MainActivity, SetPasswordActivity::class.java)
+                        intent.putExtra("phone_number", currentUser.phoneNumber)
+                        startActivity(intent)
+                    }
+                } else {
+                    SnackbarUtils.showNormalSnackbar(this@MainActivity, "用户未登录")
+                }
+            }
         }
         
         bottomSheetView.findViewById<LinearLayout>(R.id.ll_trans)?.setOnClickListener {
@@ -302,27 +349,98 @@ class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetView.findViewById<Button>(R.id.switchCount)?.setOnClickListener {
-            // 处理切换账号点击事件
             bottomSheetDialog.dismiss()
             CoroutineScope(Dispatchers.Main).launch {
-                roomUserDatabase.logout()
-                val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser != null) {
+                    // 有登录用户，弹出确认对话框
+                    showBottomConfirmDialog(
+                        title = "切换账户",
+                        message = "确定要切换到其他账户吗？",
+                        onConfirm = {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                roomUserDatabase.logout()
+                                // 重置首次启动标记，让新用户登录时能看到欢迎提示
+                                val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                                sharedPrefs.edit().putBoolean(KEY_FIRST_LAUNCH, true).apply()
+                                val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                    )
+                } else {
+                    // 没有登录用户，直接跳转到登录界面
+                    val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                    startActivity(intent)
+                }
             }
         }
+        
         
         bottomSheetView.findViewById<Button>(R.id.logout)?.setOnClickListener {
-            // 处理退出登录点击事件
             bottomSheetDialog.dismiss()
             CoroutineScope(Dispatchers.Main).launch {
-                roomUserDatabase.logout()
-                val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
-                startActivity(intent)
-                finish()
+                val currentUser = roomUserDatabase.getCurrentUser()
+                if (currentUser != null) {
+                    // 有登录用户，弹出确认对话框
+                    showBottomConfirmDialog(
+                        title = "退出登录",
+                        message = "确定要退出当前账户吗？",
+                        onConfirm = {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                roomUserDatabase.logout()
+                                // 重置首次启动标记，让新用户登录时能看到欢迎提示
+                                val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                                sharedPrefs.edit().putBoolean(KEY_FIRST_LAUNCH, true).apply()
+                                val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                    )
+                } else {
+                    // 没有登录用户，直接跳转到登录界面
+                    val intent = Intent(this@MainActivity, PhoneLoginActivity::class.java)
+                    startActivity(intent)
+                }
             }
         }
         
+        bottomSheetDialog.show()
+    }
+    
+    /**
+     * 显示底部确认对话框
+     */
+    private fun showBottomConfirmDialog(
+        title: String,
+        message: String,
+        onConfirm: () -> Unit
+    ) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_bottom_confirm, null)
+        
+        // 设置对话框内容
+        val titleTextView = dialogView.findViewById<TextView>(R.id.tv_dialog_title)
+        val messageTextView = dialogView.findViewById<TextView>(R.id.tv_dialog_message)
+        val cancelButton = dialogView.findViewById<Button>(R.id.btn_cancel)
+        val confirmButton = dialogView.findViewById<Button>(R.id.btn_confirm)
+        
+        titleTextView.text = title
+        messageTextView.text = message
+        
+        // 设置按钮点击事件
+        cancelButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+        
+        confirmButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            onConfirm()
+        }
+        
+        bottomSheetDialog.setContentView(dialogView)
         bottomSheetDialog.show()
     }
 

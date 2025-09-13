@@ -115,6 +115,9 @@
         <activity
             android:name=".SetPasswordActivity"
             android:exported="false" />
+        <activity
+            android:name=".DatabaseViewerActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -44,8 +44,12 @@
     <connection id="c36a9d63-d0a6-4c53-990d-55d7dc37482f" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="05d7c54d-c73a-4632-ba9d-5e2866f707d0" dataset="horse_racing_database.room_master_table" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="05d7c54d-c73a-4632-ba9d-5e2866f707d0" dataset="horse_racing_database.phone_library" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="05d7c54d-c73a-4632-ba9d-5e2866f707d0" dataset="horse_racing_database.sqlite_sequence" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="05d7c54d-c73a-4632-ba9d-5e2866f707d0" dataset="horse_racing_database.user_behavior" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="05d7c54d-c73a-4632-ba9d-5e2866f707d0" dataset="horse_racing_database.android_metadata" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="05d7c54d-c73a-4632-ba9d-5e2866f707d0" dataset="horse_racing_database.user_info" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
@@ -72,7 +76,9 @@
           <server-type value="" />
           <protocol value="" />
           <url-parameters />
-          <files />
+          <files>
+            <file path="C:\Users\yi.zhang10\Desktop\raceNew\DB\horse_racing_database" schema="horse_racing_database" />
+          </files>
           <type value="NONE" />
           <user value="" />
           <token-type value="" />
