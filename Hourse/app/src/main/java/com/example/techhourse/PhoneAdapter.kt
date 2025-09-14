@@ -8,11 +8,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.techhourse.database.entity.PhoneEntity
+import com.example.techhourse.database.AppDatabase
+import com.example.techhourse.utils.RoomUserDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 手机列表适配器
  */
 class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adapter<PhoneAdapter.PhoneViewHolder>() {
+    
+    private var favoritePhoneIds: Set<Long> = emptySet()
     
     // 随机手机图片资源数组
     private val phoneImages = arrayOf(
@@ -27,6 +35,7 @@ class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adap
         val phoneName: TextView = itemView.findViewById(R.id.tv_phone_name)
         val phonePrice: TextView = itemView.findViewById(R.id.tv_phone_price)
         val phoneDesc: TextView = itemView.findViewById(R.id.tv_phone_desc)
+        val favoriteIndicator: ImageView = itemView.findViewById(R.id.iv_favorite_indicator)
     }
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhoneViewHolder {
@@ -47,11 +56,7 @@ class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adap
         holder.phoneImage.setImageResource(imageResourceId)
         
         // 设置手机名称（品牌名 + 型号）
-        val phoneName = if (phone.brandName.isNotEmpty()) {
-            "${phone.brandName} ${phone.phoneModel}"
-        } else {
-            phone.phoneModel
-        }
+        val phoneName = phone.phoneModel
         holder.phoneName.text = phoneName
         
         // 设置价格
@@ -72,11 +77,18 @@ class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adap
             "配置信息"
         }
         
+        // 设置收藏状态显示
+        if (favoritePhoneIds.contains(phone.id.toLong())) {
+            holder.favoriteIndicator.visibility = View.VISIBLE
+        } else {
+            holder.favoriteIndicator.visibility = View.GONE
+        }
+        
         // 设置点击事件，跳转到手机详情页面
         holder.itemView.setOnClickListener {
             val context = holder.itemView.context
-            val intent = Intent(context, PhoneDetailActivity::class.java).apply {
-                putExtra(PhoneDetailActivity.EXTRA_PHONE_ID, phone.id)
+            val intent: Intent = Intent(context, PhoneDetailActivity::class.java).apply {
+                putExtra(PhoneDetailActivity.EXTRA_PHONE_ID, phone.id.toInt())
                 putExtra(PhoneDetailActivity.EXTRA_PHONE_MODEL, phone.phoneModel)
                 putExtra(PhoneDetailActivity.EXTRA_BRAND_NAME, phone.brandName)
                 putExtra(PhoneDetailActivity.EXTRA_PRICE, phone.price)
@@ -101,6 +113,14 @@ class PhoneAdapter(private var phoneList: List<PhoneEntity>) : RecyclerView.Adap
      */
     fun updatePhones(newPhoneList: List<PhoneEntity>) {
         phoneList = newPhoneList
+        notifyDataSetChanged()
+    }
+    
+    /**
+     * 更新收藏状态
+     */
+    fun updateFavoriteStatus(favoriteIds: Set<Long>) {
+        favoritePhoneIds = favoriteIds
         notifyDataSetChanged()
     }
 }

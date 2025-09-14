@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.techhourse.database.AppDatabase
 import com.example.techhourse.database.entity.PhoneEntity
+import com.example.techhourse.utils.RoomUserDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,6 +21,7 @@ class PhoneLibraryActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var phoneAdapter: PhoneAdapter
     private lateinit var database: AppDatabase
+    private lateinit var roomUserDatabase: RoomUserDatabase
     
     companion object {
         const val EXTRA_SEARCH_KEYWORD = "search_keyword"
@@ -32,6 +34,7 @@ class PhoneLibraryActivity : AppCompatActivity() {
         
         // 初始化数据库
         database = AppDatabase.getDatabase(this)
+        roomUserDatabase = RoomUserDatabase(this)
         
         // 初始化视图
         initViews()
@@ -87,18 +90,38 @@ class PhoneLibraryActivity : AppCompatActivity() {
                     }
                 }
                 
+                // 根据收藏状态排序手机列表，收藏的手机优先显示
+                val sortedPhoneList = sortPhonesByFavoriteStatus(phoneList)
+                
+                // 获取当前用户的收藏状态
+                val currentUser = roomUserDatabase.getCurrentUser()
+                val favoritePhoneIds = if (currentUser != null) {
+                    try {
+                        val favoriteDao = database.favoriteDao()
+                        favoriteDao.getFavoritesByUserId(currentUser.id)
+                            .map { it.phoneId.toLong() }
+                            .toSet()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        emptySet<Long>()
+                    }
+                } else {
+                    emptySet<Long>()
+                }
+                
                 // 切换到主线程更新UI
                 withContext(Dispatchers.Main) {
-                    phoneAdapter.updatePhones(phoneList)
+                    phoneAdapter.updatePhones(sortedPhoneList)
+                    phoneAdapter.updateFavoriteStatus(favoritePhoneIds)
                     
                     // 设置标题
                     supportActionBar?.title = if (searchQuery.isNullOrEmpty()) {
-                        "手机库 (${phoneList.size}款)"
+                        "手机库 (${sortedPhoneList.size}款)"
                     } else {
                         if (hasSearchResults) {
-                            "搜索结果: $searchQuery (${phoneList.size}款)"
+                            "搜索结果: $searchQuery (${sortedPhoneList.size}款)"
                         } else {
-                            "找不到${searchQuery}中的内容 - 显示所有手机 (${phoneList.size}款)"
+                            "找不到${searchQuery}中的内容 - 显示所有手机 (${sortedPhoneList.size}款)"
                         }
                     }
                 }
@@ -109,6 +132,37 @@ class PhoneLibraryActivity : AppCompatActivity() {
                     supportActionBar?.title = "加载失败"
                 }
             }
+        }
+    }
+    
+    /**
+     * 根据收藏状态排序手机列表，收藏的手机优先显示
+     */
+    private suspend fun sortPhonesByFavoriteStatus(phoneList: List<PhoneEntity>): List<PhoneEntity> {
+        return try {
+            val currentUser = roomUserDatabase.getCurrentUser()
+            
+            if (currentUser == null) {
+                // 用户未登录，返回原始列表
+                phoneList
+            } else {
+                // 用户已登录，获取收藏列表
+                val favoriteDao = database.favoriteDao()
+                val favoritePhoneIds: Set<Int> = favoriteDao.getFavoritesByUserId(currentUser.id)
+                    .map { it.phoneId }
+                    .toSet()
+                
+                // 将手机列表分为收藏和未收藏两部分，然后合并
+                val favoritePhones = phoneList.filter { favoritePhoneIds.contains(it.id) }
+                val nonFavoritePhones = phoneList.filter { !favoritePhoneIds.contains(it.id) }
+                
+                // 收藏的手机在前，未收藏的在后
+                favoritePhones + nonFavoritePhones
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // 发生错误时返回原始列表
+            phoneList
         }
     }
 }

@@ -14,15 +14,33 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <!-- 手机图片 -->
-        <ImageView
-            android:id="@+id/iv_phone_image"
+        <!-- 手机图片容器 -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:src="@mipmap/icon_iphone"
-            android:scaleType="centerCrop"
-            android:background="@drawable/phone_image_background"
-            android:contentDescription="手机图片" />
+            android:layout_height="160dp">
+            
+            <!-- 手机图片 -->
+            <ImageView
+                android:id="@+id/iv_phone_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@mipmap/icon_iphone"
+                android:scaleType="centerCrop"
+                android:background="@drawable/phone_image_background"
+                android:contentDescription="手机图片" />
+            
+            <!-- 收藏图标 -->
+            <ImageView
+                android:id="@+id/iv_favorite_indicator"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:src="@drawable/ic_favorite_filled"
+                android:visibility="gone"
+                android:contentDescription="收藏标识" />
+            
+        </FrameLayout>
 
         <!-- 手机信息 -->
         <LinearLayout

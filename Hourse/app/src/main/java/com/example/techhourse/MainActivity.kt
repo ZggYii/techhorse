@@ -30,6 +30,9 @@ import com.example.techhourse.utils.RoomUserDatabase
 import com.example.techhourse.utils.SnackbarUtils
 import com.example.techhourse.utils.UserBehaviorProcessor
 import com.example.techhourse.utils.DatabaseDebugHelper
+import com.example.techhourse.utils.DatabaseFixer
+import com.example.techhourse.database.entity.PhoneEntity
+import com.example.techhourse.database.entity.UserHistoryEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,6 +72,9 @@ class MainActivity : AppCompatActivity() {
     // 广播接收器
     private lateinit var historyBroadcastReceiver: BroadcastReceiver
     
+    // 用户数据库
+    private lateinit var roomUserDatabase: RoomUserDatabase
+    
     companion object {
         const val ACTION_ADD_TO_HISTORY = "com.example.techhourse.ADD_TO_HISTORY"
         const val EXTRA_PHONE_ID = "phone_id"
@@ -97,6 +103,12 @@ class MainActivity : AppCompatActivity() {
         
         // 初始化广播接收器
         setupBroadcastReceiver()
+        
+        // 初始化用户数据库
+        roomUserDatabase = RoomUserDatabase(this)
+        
+        // 加载用户历史记录
+        loadUserHistory()
     }
 
     private fun initializeDatabaseOnStartup() {
@@ -104,6 +116,17 @@ class MainActivity : AppCompatActivity() {
             try {
                 // 获取数据库实例
                 val database = AppDatabase.getDatabase(this@MainActivity)
+
+                // 修复imageResourceId错误赋值问题
+                val fixedCount = DatabaseFixer.fixImageResourceIds(this@MainActivity)
+                if (fixedCount > 0) {
+                    withContext(Dispatchers.Main) {
+                        SnackbarUtils.showSnackbar(
+                            this@MainActivity,
+                            "已修复 $fixedCount 个图片资源错误"
+                        )
+                    }
+                }
 
                 // 1. 重新初始化手机库数据（因为添加了新的图片字段）
                 // DatabaseInitializer.reinitializePhoneData(this@MainActivity, database.phoneDao())
@@ -222,7 +245,7 @@ class MainActivity : AppCompatActivity() {
                         if (phoneEntity != null) {
                             // 跳转到PhoneDetailActivity并传递完整的手机信息
                             val intent = Intent(this@MainActivity, PhoneDetailActivity::class.java).apply {
-                                putExtra(PhoneDetailActivity.EXTRA_PHONE_ID, phoneEntity.id)
+                                putExtra(PhoneDetailActivity.EXTRA_PHONE_ID, phoneEntity.id.toInt())
                                 putExtra(PhoneDetailActivity.EXTRA_PHONE_MODEL, phoneEntity.phoneModel)
                                 putExtra(PhoneDetailActivity.EXTRA_BRAND_NAME, phoneEntity.brandName)
                                 putExtra(PhoneDetailActivity.EXTRA_MARKET_NAME, phoneEntity.marketName)
@@ -490,8 +513,8 @@ class MainActivity : AppCompatActivity() {
         // 添加到历史记录开头
         historyPhoneCards.add(0, phoneCard)
 
-        // 限制历史记录数量为5个
-        if (historyPhoneCards.size > 5) {
+        // 限制历史记录数量为7个
+        if (historyPhoneCards.size > 7) {
             historyPhoneCards.removeAt(historyPhoneCards.size - 1)
         }
         
@@ -589,8 +612,48 @@ class MainActivity : AppCompatActivity() {
     
     override fun onResume() {
         super.onResume()
+        // 重新加载用户头像状态
+        setupUserAvatar()
         // 当从其他Activity返回时，重置导航栏到首页状态
         setDefaultTab()
+        // 检查用户登录状态变化并处理历史记录
+        handleUserLoginStatusChange()
+    }
+    
+    /**
+     * 处理用户登录状态变化
+     * 只有在用户登录状态发生变化时才重新加载历史记录
+     */
+    private fun handleUserLoginStatusChange() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val currentUser = roomUserDatabase.getCurrentUser()
+                val isCurrentlyLoggedIn = currentUser != null
+                
+                // 检查登录状态是否发生变化
+                val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                val wasLoggedIn = sharedPrefs.getBoolean("was_logged_in", false)
+                
+                if (isCurrentlyLoggedIn != wasLoggedIn) {
+                    // 登录状态发生变化，更新状态并重新加载历史记录
+                    sharedPrefs.edit().putBoolean("was_logged_in", isCurrentlyLoggedIn).apply()
+                    
+                    withContext(Dispatchers.Main) {
+                        if (isCurrentlyLoggedIn) {
+                            // 用户刚登录，从数据库加载历史记录
+                            historyPhoneCards.clear()
+                            loadUserHistory()
+                        } else {
+                            // 用户刚登出，清空历史记录
+                            historyPhoneCards.clear()
+                            historyAdapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
     
     override fun onDestroy() {
@@ -598,6 +661,62 @@ class MainActivity : AppCompatActivity() {
         // 注销广播接收器
         unregisterReceiver(historyBroadcastReceiver)
     }
+    
+    private fun loadUserHistory() {
+         lifecycleScope.launch(Dispatchers.IO) {
+             try {
+                 val currentUser = roomUserDatabase.getCurrentUser()
+                 if (currentUser != null) {
+                     // 检查是否是app重启后的首次加载（通过检查UI历史记录是否为空）
+                     val shouldLoadFromDatabase = historyPhoneCards.isEmpty()
+                     
+                     if (shouldLoadFromDatabase) {
+                         val database = AppDatabase.getDatabase(this@MainActivity)
+                         val historyList = database.userHistoryDao().getHistoryByUserIdWithLimit(currentUser.id.toLong(), 7)
+                         
+                         withContext(Dispatchers.Main) {
+                             // 只有在UI历史记录为空时才从数据库加载
+                             historyPhoneCards.clear()
+                             
+                             // 将数据库中的历史记录转换为PhoneCard并添加到列表
+                             historyList.forEach { history ->
+                                 lifecycleScope.launch(Dispatchers.IO) {
+                                     try {
+                                         val phoneEntity = database.phoneDao().getPhoneById(history.phoneId.toInt())
+                                         if (phoneEntity != null) {
+                                             val phoneCard = PhoneCard(
+                                                 id = phoneEntity.id.toInt(),
+                                                 name = phoneEntity.phoneModel,
+                                                 description = phoneEntity.brandName,
+                                                 price = phoneEntity.price,
+                                                 imageResource = phoneEntity.imageResourceId
+                                             )
+                                             
+                                             withContext(Dispatchers.Main) {
+                                                 historyPhoneCards.add(phoneCard)
+                                                 historyAdapter.notifyDataSetChanged()
+                                             }
+                                         }
+                                     } catch (e: Exception) {
+                                         e.printStackTrace()
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                     // 如果UI历史记录不为空，说明是当前会话中的操作，不从数据库重新加载
+                 } else {
+                     // 用户未登录，清空历史记录
+                     withContext(Dispatchers.Main) {
+                         historyPhoneCards.clear()
+                         historyAdapter.notifyDataSetChanged()
+                     }
+                 }
+             } catch (e: Exception) {
+                 e.printStackTrace()
+             }
+         }
+     }
     
     private fun switchTab(position: Int) {
         // 重置所有Tab状态

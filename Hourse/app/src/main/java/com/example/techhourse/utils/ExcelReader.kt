@@ -29,7 +29,7 @@ class ExcelReader {
                 R.mipmap.image16, R.mipmap.image17, R.mipmap.image18, R.mipmap.image19, R.mipmap.image20,
                 R.mipmap.image21, R.mipmap.image22, R.mipmap.image23, R.mipmap.image24, R.mipmap.image25,
                 R.mipmap.image26, R.mipmap.image27, R.mipmap.image28, R.mipmap.image29, R.mipmap.image30,
-                R.mipmap.image31, R.mipmap.image32, R.mipmap.image33, R.mipmap.image34
+                R.mipmap.image31, R.mipmap.image32, R.mipmap.image33, R.mipmap.image34, R.mipmap.image35
             )
             
             try {
@@ -54,8 +54,13 @@ class ExcelReader {
                         val sellingPoint = getCellValueAsString(row.getCell(8)) ?: ""
                         val price = getCellValueAsString(row.getCell(9)) ?: ""
                         
-                        // 按顺序分配图片资源ID，如果超出数组长度则循环使用
-                        val imageResourceId = imageResources[phoneList.size % imageResources.size]
+                        // 根据品牌分配特定图片，否则按顺序分配
+                        val imageResourceId = when {
+                            brandName.contains("Infinix", ignoreCase = true) -> R.mipmap.infinix
+                            brandName.contains("itel", ignoreCase = true) -> R.mipmap.itel
+                            brandName.contains("TECNO", ignoreCase = true) -> R.mipmap.tecno
+                            else -> imageResources[phoneList.size % imageResources.size]
+                        }
                         
                         val phone = PhoneEntity(
                             phoneModel = phoneModel,

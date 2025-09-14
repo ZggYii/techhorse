@@ -117,10 +117,9 @@ class CompareActivity : AppCompatActivity() {
                 // 更新第一个选择器的图片
                 val imageView1 = findViewById<ImageView>(R.id.iv_phone_1_image)
                 
-                // 根据手机图片资源名称设置图片
-                val imageResId = resources.getIdentifier(phone.imageResourceId.toString(), "drawable", packageName)
-                if (imageResId != 0) {
-                    imageView1.setImageResource(imageResId)
+                // 直接使用数据库中的图片资源ID
+                if (phone.imageResourceId != 0) {
+                    imageView1.setImageResource(phone.imageResourceId)
                     imageView1.scaleType = ImageView.ScaleType.CENTER_CROP
                     // 移除tint以显示原始图片颜色
                     imageView1.imageTintList = null
@@ -141,10 +140,9 @@ class CompareActivity : AppCompatActivity() {
                 // 更新第二个选择器的图片
                 val imageView2 = findViewById<ImageView>(R.id.iv_phone_2_image)
                 
-                // 根据手机图片资源名称设置图片
-                val imageResId = resources.getIdentifier(phone.imageResourceId.toString(), "drawable", packageName)
-                if (imageResId != 0) {
-                    imageView2.setImageResource(imageResId)
+                // 直接使用数据库中的图片资源ID
+                if (phone.imageResourceId != 0) {
+                    imageView2.setImageResource(phone.imageResourceId)
                     imageView2.scaleType = ImageView.ScaleType.CENTER_CROP
                     // 移除tint以显示原始图片颜色
                     imageView2.imageTintList = null

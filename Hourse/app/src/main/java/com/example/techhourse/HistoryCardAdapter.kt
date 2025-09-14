@@ -16,7 +16,6 @@ class HistoryCardAdapter(
         val ivPhoneImage: ImageView = itemView.findViewById(R.id.iv_phone_image)
         val tvPhoneName: TextView = itemView.findViewById(R.id.tv_phone_name)
         val tvPhonePrice: TextView = itemView.findViewById(R.id.tv_phone_price)
-        val tvPhoneDesc: TextView = itemView.findViewById(R.id.tv_phone_desc)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryCardViewHolder {
@@ -31,7 +30,6 @@ class HistoryCardAdapter(
         holder.ivPhoneImage.setImageResource(phoneCard.imageResource)
         holder.tvPhoneName.text = phoneCard.name
         holder.tvPhonePrice.text = phoneCard.price
-        holder.tvPhoneDesc.text = phoneCard.description
         
         holder.itemView.setOnClickListener {
             onItemClick(phoneCard)

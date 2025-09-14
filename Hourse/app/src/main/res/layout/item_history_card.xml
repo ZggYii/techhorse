@@ -59,17 +59,7 @@
                 android:maxLines="1"
                 android:ellipsize="end" />
 
-            <!-- 手机描述 -->
-            <TextView
-                android:id="@+id/tv_phone_desc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="A17 Pro芯片"
-                android:textColor="@color/gray"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
+
 
         </LinearLayout>
 

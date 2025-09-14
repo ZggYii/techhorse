@@ -51,26 +51,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="start"
+                android:gravity="center_vertical"
                 android:layout_marginTop="0dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textColor="#F56500"
-                    android:textStyle="bold"
-                    android:layout_marginEnd="4dp" />
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="start">
 
-                <TextView
-                    android:id="@+id/tv_phone_detail_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="价格"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    android:textColor="#B19CD9" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="16sp"
+                        android:textColor="#F56500"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_phone_detail_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="价格"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="#B19CD9" />
+
+                </LinearLayout>
+
+                <!-- 收藏按钮 -->
+                <ImageView
+                    android:id="@+id/iv_favorite"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_favorite_border"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="4dp"
+                    android:contentDescription="收藏"
+                    android:layout_marginStart="16dp" />
 
             </LinearLayout>
 
