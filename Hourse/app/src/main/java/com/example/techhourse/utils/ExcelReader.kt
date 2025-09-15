@@ -54,13 +54,8 @@ class ExcelReader {
                         val sellingPoint = getCellValueAsString(row.getCell(8)) ?: ""
                         val price = getCellValueAsString(row.getCell(9)) ?: ""
                         
-                        // 根据品牌分配特定图片，否则按顺序分配
-                        val imageResourceId = when {
-                            brandName.contains("Infinix", ignoreCase = true) -> R.mipmap.infinix
-                            brandName.contains("itel", ignoreCase = true) -> R.mipmap.itel
-                            brandName.contains("TECNO", ignoreCase = true) -> R.mipmap.tecno
-                            else -> imageResources[phoneList.size % imageResources.size]
-                        }
+                        // 按顺序循环分配图片资源，确保每个手机都有不同的图片
+                        val imageResourceId = imageResources[phoneList.size % imageResources.size]
                         
                         val phone = PhoneEntity(
                             phoneModel = phoneModel,
